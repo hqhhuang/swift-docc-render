@@ -13,6 +13,7 @@
     <VideoAsset
       ref="asset"
       :variants="variants"
+      :poster-variants="posterVariants"
       @ended="onVideoEnd"
       :showsControls="showsControls"
       :autoplays="autoplays"
@@ -52,10 +53,14 @@ export default {
       type: Boolean,
       default: () => true,
     },
+    posterVariants: {
+      type: Array,
+      required: true,
+    },
   },
   data() {
     return {
-      showsReplayButton: false,
+      showsReplayButton: window.matchMedia('(prefers-reduced-motion)').matches,
     };
   },
   methods: {

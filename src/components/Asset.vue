@@ -61,14 +61,8 @@ export default {
       return this.isRawAssetVideo
         && this.references[this.rawAsset.poster];
     },
-    asset() {
-      if (this.isRawAssetVideo && this.prefersReducedMotion) {
-        return this.videoPoster || this.rawAsset;
-      }
-      return this.rawAsset;
-    },
     assetComponent() {
-      switch (this.asset.type) {
+      switch (this.rawAsset.type) {
       case AssetTypes.image:
         return ImageAsset;
       case AssetTypes.video:
@@ -84,17 +78,17 @@ export default {
       return {
         [AssetTypes.image]: this.imageProps,
         [AssetTypes.video]: this.videoProps,
-      }[this.asset.type];
+      }[this.rawAsset.type];
     },
     imageProps() {
       return {
-        alt: this.asset.alt,
-        variants: this.asset.variants,
+        alt: this.rawAsset.alt,
+        variants: this.rawAsset.variants,
       };
     },
     videoProps() {
       return {
-        variants: this.asset.variants,
+        variants: this.rawAsset.variants,
         showsControls: this.showsVideoControls,
         autoplays: this.prefersReducedMotion ? false : this.videoAutoplays,
         posterVariants: this.videoPoster ? this.videoPoster.variants : [],
@@ -106,7 +100,7 @@ export default {
         [AssetTypes.video]: {
           ended: () => this.$emit('videoEnded'),
         },
-      }[this.asset.type];
+      }[this.rawAsset.type];
     },
   },
 };
