@@ -12,12 +12,21 @@ import { shallowMount } from '@vue/test-utils';
 import ReplayableVideoAsset from 'docc-render/components/ReplayableVideoAsset.vue';
 import VideoAsset from 'docc-render/components/VideoAsset.vue';
 import InlineReplayIcon from 'theme/components/Icons/InlineReplayIcon.vue';
-import { flushPromises } from '../../../test-utils';
 
 const variants = [{ traits: ['dark', '1x'], url: 'https://www.example.com/myvideo.mp4' }];
-
+const posterVariants = [
+  {
+    url: 'foo.png',
+    traits: ['2x'],
+    size: {
+      width: 42,
+      height: 42,
+    },
+  },
+];
 const propsData = {
   variants,
+  posterVariants,
 };
 describe('ReplayableVideoAsset', () => {
   const mountWithProps = props => shallowMount(ReplayableVideoAsset, {
@@ -31,7 +40,7 @@ describe('ReplayableVideoAsset', () => {
     },
   });
 
-  const playMock = jest.fn().mockResolvedValue(undefined);
+  const playMock = jest.fn();
 
   beforeAll(() => {
     window.matchMedia = () => ({ matches: false });
@@ -70,12 +79,11 @@ describe('ReplayableVideoAsset', () => {
     expect(replayButton.classes('visible')).toBe(false);
   });
 
-  it('plays the video if replay button is clicked', async () => {
+  it('plays the video if replay button is clicked', () => {
     const wrapper = mountWithProps();
 
     expect(playMock).toHaveBeenCalledTimes(0);
     wrapper.find('.replay-button').trigger('click');
-    await flushPromises();
     expect(playMock).toHaveBeenCalledTimes(1);
   });
 });

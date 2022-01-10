@@ -45,13 +45,23 @@ window.MediaSource = jest.fn(() => ({
 window.URL.createObjectURL = jest.fn();
 window.HTMLMediaElement.prototype.addNextTrack = jest.fn();
 
+// Retreives all the video poster image URLS from the references dictionary.
+const allPosterURLsFrom = references => Object.values(references)
+  .filter(({ poster }) => poster)
+  .map(({ poster }) => poster);
+
 // Retrieves all the image URLs from the references dictionary.
-const allImageURLsFrom = references => (
-  Object.values(references)
+const allImageURLsFrom = (references) => {
+  // get all images
+  const allImages = Object.values(references)
     .filter(({ type }) => type === 'image')
     .map(({ variants }) => variants.map(({ url }) => url))
-    .map(([url]) => url)
-);
+    .map(([url]) => url);
+  // get all video posters
+  const posters = allPosterURLsFrom(references);
+  // filter out images that belong to video posters
+  return allImages.filter(img => !img.includes(posters));
+};
 
 // Util function to collect all elements from a `WrapperArray` into an Array.
 const elementsFromWrapperArray = wrapperArray => (
@@ -68,9 +78,22 @@ describe('image preloading', () => {
 
     const referenceImageURLs = allImageURLsFrom(references);
 
+    // assert all non-video poster images in reference are in the DOM
     referenceImageURLs.forEach((url) => {
       if (!domImageURLs.includes(url)) {
         throw new Error(`Image ${url} is not in the DOM.`);
+      }
+    });
+
+    // assert video poster are rendered
+    const domPosterURLs = elementsFromWrapperArray(wrapper.findAll('video'))
+      .map(poster => poster.attributes('poster'));
+
+    const referencePostersURLS = allPosterURLsFrom(references);
+
+    referencePostersURLS.forEach((url) => {
+      if (!domPosterURLs.includes(`/images/${url}`)) {
+        throw new Error(`Video poster ${url} is not in the DOM.`);
       }
     });
   };

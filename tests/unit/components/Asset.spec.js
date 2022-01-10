@@ -178,14 +178,23 @@ describe('Asset', () => {
       window.matchMedia.mockImplementationOnce(() => ({ matches: true }));
     });
 
-    it('renders an `ImageAsset` for videos when reduceMotion setting is chosen', () => {
-      const wrapper = mountAsset('video', { video, image });
-      const asset = wrapper.find(ImageAsset);
+    it('renders an `ReplayableVideoAsset` for videos when reduceMotion setting is chosen', () => {
+      const wrapper = shallowMount(Asset, {
+        propsData: {
+          identifier: 'video',
+          showsReplayButton: true,
+          showsVideoControls: true,
+        },
+        provide: { references: { video, image } },
+      });
 
+      const asset = wrapper.find(ReplayableVideoAsset);
       expect(asset.exists()).toBe(true);
       expect(asset.props()).toEqual({
-        alt: image.alt,
-        variants: image.variants,
+        variants: video.variants,
+        posterVariants: image.variants,
+        autoplays: false,
+        showsControls: true,
       });
     });
 
