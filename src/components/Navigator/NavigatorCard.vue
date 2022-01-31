@@ -43,7 +43,7 @@
         />
       </RecycleScroller>
       <div class="no-items-wrapper" v-if="!nodesToRender.length">
-        <template v-if="filterPattern">
+        <template v-if="hasFilter">
           No results matching your filter
         </template>
         <template v-else>
@@ -54,7 +54,7 @@
     <div class="filter-wrapper">
       <div class="navigator-filter">
         <div class="input-wrapper">
-          <FilterIcon class="icon-inline filter-icon" :class="{ colored: filter }" />
+          <FilterIcon class="icon-inline filter-icon" :class="{ colored: hasFilter }" />
           <input
             type="text"
             :value="filter"
@@ -62,8 +62,8 @@
             @input="debounceInput">
           <button
             class="clear-button"
-            :class="{ hide: !filter }"
-            @click.prevent="filter = ''"
+            :class="{ hide: !hasFilter }"
+            @click.prevent="clearFilters"
           >
             <ClearRoundedIcon class="icon-inline clear-icon" />
           </button>
@@ -87,12 +87,28 @@ import InlineCloseIcon from 'theme/components/Icons/InlineCloseIcon.vue';
 import FilterIcon from 'theme/components/Icons/FilterIcon.vue';
 import ClearRoundedIcon from 'theme/components/Icons/ClearRoundedIcon.vue';
 import Reference from 'docc-render/components/ContentNode/Reference.vue';
+import { TopicKind } from '@/constants/kinds';
 
 export const STORAGE_KEYS = {
   filter: 'navigator.filter',
   technology: 'navigator.technology',
   openNodes: 'navigator.openNodes',
   nodesToRender: 'navigator.nodesToRender',
+  selectedTags: 'navigator.selectedTags',
+};
+
+const FILTER_TAGS = {
+  sampleCode: 'Sample Code',
+  tutorials: 'Tutorials',
+  articles: 'Articles',
+  references: 'Reference',
+};
+
+const TOPIC_KIND_TO_TAG = {
+  [TopicKind.article]: FILTER_TAGS.articles,
+  [TopicKind.tutorial]: FILTER_TAGS.tutorials,
+  [TopicKind.overview]: FILTER_TAGS.tutorials,
+  [TopicKind.sampleCode]: FILTER_TAGS.sampleCode,
 };
 
 /**
@@ -140,6 +156,8 @@ export default {
   data() {
     return {
       filter: '',
+      selectedTags: [],
+      availableTags: Object.keys(FILTER_TAGS),
       /** @type {Object.<string, boolean>} */
       openNodes: {},
       /** @type {NavigatorFlatItem[]} */
@@ -202,10 +220,20 @@ export default {
      * Returns a list of the child nodes, that match the filter pattern.
      * @returns NavigatorFlatItem[]
      */
-    filteredChildren({ children, filterPattern }) {
-      if (!filterPattern) return [];
-      // match each child's title, against the `filterPattern`
-      const matches = children.filter(({ title }) => filterPattern.test(title));
+    filteredChildren({
+      hasFilter, children, filterPattern, selectedTags,
+    }) {
+      if (!hasFilter) return [];
+      const tagsSet = new Set(selectedTags);
+      // find children that match current filters
+      const matches = children.filter(({ title, kind }) => {
+        // check if `title` matches the pattern, if provided
+        const titleMatch = filterPattern ? filterPattern.test(title) : true;
+        // check if `kind` matches any of the selected tags
+        const tagMatch = selectedTags.length
+          ? tagsSet.has(TOPIC_KIND_TO_TAG[kind]) : true;
+        return titleMatch && tagMatch;
+      });
       // remove duplicate UIDs
       return [...new Set(
         // find all the parents
@@ -215,11 +243,17 @@ export default {
     /**
      * Creates a computed for the two items, that the openNodes calc depends on
      */
-    nodeChangeDeps: ({ filteredChildren, activePathChildren, filter }) => ([
+    nodeChangeDeps: ({
+      filteredChildren, activePathChildren, filter, selectedTags,
+    }) => ([
       filteredChildren,
       activePathChildren,
       filter,
+      selectedTags,
     ]),
+    hasFilter({ filter, selectedTags }) {
+      return Boolean(filter.length || selectedTags.length);
+    },
   },
   created() {
     this.restorePersistedState();
@@ -229,8 +263,15 @@ export default {
     filter(value) {
       sessionStorage.set(STORAGE_KEYS.filter, value);
     },
+    selectedTags(value) {
+      sessionStorage.set(STORAGE_KEYS.selectedTags, value);
+    },
   },
   methods: {
+    clearFilters() {
+      this.filter = '';
+      this.selectedTags = [];
+    },
     debounceInput: debounce(function debounceInput({ target: { value } }) {
       this.filter = value;
     }, 500),
@@ -239,23 +280,31 @@ export default {
      * Initiates a watcher, that reacts to filtering and page navigation.
      */
     trackOpenNodes(
-      [filteredChildren, activePathChildren, filter],
-      [, activePathChildrenBefore, filterBefore] = [],
+      [filteredChildren, activePathChildren, filter, selectedTags],
+      [, activePathChildrenBefore, filterBefore, selectedTagsBefore = []] = [],
     ) {
-      // skip in case this is a first mount and we are syncing the `filter`.
-      if (filter !== filterBefore && !filterBefore && sessionStorage.get(STORAGE_KEYS.filter)) {
+      // skip in case this is a first mount and we are syncing the `filter` and `selectedTags`.
+      if (
+        (filter !== filterBefore && !filterBefore && sessionStorage.get(STORAGE_KEYS.filter))
+        || (
+          selectedTags.join() !== selectedTagsBefore.join()
+          && !selectedTagsBefore.length
+          && sessionStorage.get(STORAGE_KEYS.tags, []).length
+        )
+      ) {
         return;
       }
-      // decide which items to filter
-      const nodes = !this.filterPattern
+      // decide which items to iterate over
+      const nodes = !this.hasFilter
         ? activePathChildren
         : filteredChildren;
       // if the activePath items change, we navigated to another page
       const pageChange = activePathChildrenBefore !== activePathChildren;
 
+      const filteredNodes = nodes
+        .map(({ uid }) => [uid, true]);
       // create a map to track open items - `{ [UID]: true }`
-      const newOpenNodes = Object.fromEntries(nodes
-        .map(({ uid }) => [uid, true]));
+      const newOpenNodes = Object.fromEntries(filteredNodes);
       // if we navigate across pages, persist the previously open nodes
       this.openNodes = Object.assign(pageChange ? this.openNodes : {}, newOpenNodes);
       this.generateNodesToRender({ scrollToElement: true });
@@ -356,10 +405,10 @@ export default {
      */
     async generateNodesToRender({ scrollToElement = false }) {
       const {
-        children, filteredChildren, filterPattern, openNodes,
+        children, filteredChildren, hasFilter, openNodes,
       } = this;
       // get the nodes to render
-      this.nodesToRender = (filterPattern ? filteredChildren : children)
+      this.nodesToRender = (hasFilter ? filteredChildren : children)
         .filter(child => (
           // if parent is the root
           child.parent === INDEX_ROOT_KEY
@@ -400,7 +449,8 @@ export default {
       const nodesToRender = sessionStorage.get(STORAGE_KEYS.nodesToRender, []);
       // generate the array of flat children objects to render
       this.nodesToRender = nodesToRender.map(uid => this.childrenMap[uid]);
-      // finally fetch any previously assigned filters
+      // finally fetch any previously assigned filters or tags
+      this.selectedTags = sessionStorage.get(STORAGE_KEYS.selectedTags, []);
       this.filter = sessionStorage.get(STORAGE_KEYS.filter, '');
       // scroll to the active element
       this.scrollToElement();
@@ -408,7 +458,7 @@ export default {
     async scrollToElement() {
       await waitFrames(1);
       // if we are filtering, it makes more sense to scroll to top of list
-      const index = this.filterPattern
+      const index = this.hasFilter
         ? 0
         // find the index of the current active UID in the newly added nodes
         : this.nodesToRender.findIndex(child => child.uid === this.activeUID);
