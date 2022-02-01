@@ -89,7 +89,7 @@ import ClearRoundedIcon from 'theme/components/Icons/ClearRoundedIcon.vue';
 import Reference from 'docc-render/components/ContentNode/Reference.vue';
 import { TopicKind } from '@/constants/kinds';
 
-export const STORAGE_KEYS = {
+const STORAGE_KEYS = {
   filter: 'navigator.filter',
   technology: 'navigator.technology',
   openNodes: 'navigator.openNodes',
@@ -101,14 +101,16 @@ const FILTER_TAGS = {
   sampleCode: 'Sample Code',
   tutorials: 'Tutorials',
   articles: 'Articles',
-  references: 'Reference',
 };
 
 const TOPIC_KIND_TO_TAG = {
   [TopicKind.article]: FILTER_TAGS.articles,
-  [TopicKind.tutorial]: FILTER_TAGS.tutorials,
+  [TopicKind.learn]: FILTER_TAGS.tutorials,
   [TopicKind.overview]: FILTER_TAGS.tutorials,
+  [TopicKind.resources]: FILTER_TAGS.tutorials,
   [TopicKind.sampleCode]: FILTER_TAGS.sampleCode,
+  [TopicKind.section]: FILTER_TAGS.tutorials,
+  [TopicKind.tutorial]: FILTER_TAGS.tutorials,
 };
 
 /**
@@ -118,6 +120,11 @@ const TOPIC_KIND_TO_TAG = {
  */
 export default {
   name: 'NavigatorCard',
+  constants: {
+    STORAGE_KEYS,
+    FILTER_TAGS,
+    TOPIC_KIND_TO_TAG,
+  },
   components: {
     ClearRoundedIcon,
     FilterIcon,
