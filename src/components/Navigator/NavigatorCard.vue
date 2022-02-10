@@ -136,6 +136,8 @@ export default {
   constants: {
     STORAGE_KEYS,
     FILTER_TAGS,
+    FILTER_TAGS_TO_LABELS,
+    FILTER_LABELS_TO_TAGS,
     TOPIC_KIND_TO_TAG,
   },
   components: {
@@ -315,7 +317,7 @@ export default {
         || (
           selectedTags.join() !== selectedTagsBefore.join()
           && !selectedTagsBefore.length
-          && sessionStorage.get(STORAGE_KEYS.tags, []).length
+          && sessionStorage.get(STORAGE_KEYS.selectedTags, []).length
         )
       ) {
         return;
