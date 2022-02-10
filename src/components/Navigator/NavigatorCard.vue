@@ -87,7 +87,7 @@ import InlineCloseIcon from 'theme/components/Icons/InlineCloseIcon.vue';
 import FilterIcon from 'theme/components/Icons/FilterIcon.vue';
 import ClearRoundedIcon from 'theme/components/Icons/ClearRoundedIcon.vue';
 import Reference from 'docc-render/components/ContentNode/Reference.vue';
-import { TopicKind } from '@/constants/kinds';
+import { TopicKind } from 'docc-render/constants/kinds';
 
 const STORAGE_KEYS = {
   filter: 'navigator.filter',
