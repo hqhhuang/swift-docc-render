@@ -54,19 +54,20 @@
     <div class="filter-wrapper">
       <div class="navigator-filter">
         <div class="input-wrapper">
-          <FilterIcon class="icon-inline filter-icon" :class="{ colored: hasFilter }" />
-          <input
-            type="text"
+          <FilterInput
             :value="filter"
+            :tags="availableTags"
+            :selected-tags.sync="selectedTagsModelValue"
             :placeholder="`Filter in ${technology}`"
-            @input="debounceInput">
-          <button
-            class="clear-button"
-            :class="{ hide: !hasFilter }"
-            @click.prevent="clearFilters"
+            position-reversed
+            class="filter-component"
+            @clear="clearFilters"
+            @input="debounceInput"
           >
-            <ClearRoundedIcon class="icon-inline clear-icon" />
-          </button>
+            <template #icon>
+              <FilterIcon class="icon-inline filter-icon" />
+            </template>
+          </FilterInput>
         </div>
       </div>
     </div>
@@ -85,9 +86,9 @@ import NavigatorLeafIcon from 'docc-render/components/Navigator/NavigatorLeafIco
 import NavigatorCardItem from 'docc-render/components/Navigator/NavigatorCardItem.vue';
 import InlineCloseIcon from 'theme/components/Icons/InlineCloseIcon.vue';
 import FilterIcon from 'theme/components/Icons/FilterIcon.vue';
-import ClearRoundedIcon from 'theme/components/Icons/ClearRoundedIcon.vue';
 import Reference from 'docc-render/components/ContentNode/Reference.vue';
 import { TopicKind } from 'docc-render/constants/kinds';
+import FilterInput from 'docc-render/components/Filter/FilterInput.vue';
 
 const STORAGE_KEYS = {
   filter: 'navigator.filter',
@@ -98,10 +99,22 @@ const STORAGE_KEYS = {
 };
 
 const FILTER_TAGS = {
-  sampleCode: 'Sample Code',
-  tutorials: 'Tutorials',
-  articles: 'Articles',
+  sampleCode: 'sampleCode',
+  tutorials: 'tutorials',
+  articles: 'articles',
 };
+
+const FILTER_TAGS_TO_LABELS = {
+  [FILTER_TAGS.sampleCode]: 'Sample Code',
+  [FILTER_TAGS.tutorials]: 'Tutorials',
+  [FILTER_TAGS.articles]: 'Articles',
+};
+
+const FILTER_LABELS_TO_TAGS = Object.fromEntries(
+  Object
+    .entries(FILTER_TAGS_TO_LABELS)
+    .map(([key, value]) => [value, key]),
+);
 
 const TOPIC_KIND_TO_TAG = {
   [TopicKind.article]: FILTER_TAGS.articles,
@@ -126,7 +139,7 @@ export default {
     TOPIC_KIND_TO_TAG,
   },
   components: {
-    ClearRoundedIcon,
+    FilterInput,
     FilterIcon,
     InlineCloseIcon,
     NavigatorCardItem,
@@ -164,7 +177,7 @@ export default {
     return {
       filter: '',
       selectedTags: [],
-      availableTags: Object.keys(FILTER_TAGS),
+      availableTags: Object.values(FILTER_TAGS_TO_LABELS),
       /** @type {Object.<string, boolean>} */
       openNodes: {},
       /** @type {NavigatorFlatItem[]} */
@@ -172,6 +185,12 @@ export default {
     };
   },
   computed: {
+    selectedTagsModelValue: {
+      get: ({ selectedTags }) => selectedTags.map(tag => FILTER_TAGS_TO_LABELS[tag]),
+      set(values) {
+        this.selectedTags = values.map(label => FILTER_LABELS_TO_TAGS[label]);
+      },
+    },
     filterPattern: ({ filter }) => (!filter
       ? undefined
       // remove the `g` for global, as that causes bugs when matching
@@ -279,7 +298,7 @@ export default {
       this.filter = '';
       this.selectedTags = [];
     },
-    debounceInput: debounce(function debounceInput({ target: { value } }) {
+    debounceInput: debounce(function debounceInput(value) {
       this.filter = value;
     }, 500),
     /**
@@ -576,6 +595,9 @@ $navigator-card-vertical-spacing: 18px !default;
   box-sizing: border-box;
   padding: 14px 30px;
   border-top: 1px solid var(--color-grid);
+  height: 71px;
+  display: flex;
+  align-items: flex-end;
 
   @include breakpoint(small) {
     border: none;
@@ -584,54 +606,29 @@ $navigator-card-vertical-spacing: 18px !default;
 
   .input-wrapper {
     position: relative;
+    flex: 1;
+    min-width: 0;
   }
 
   .filter-icon {
     width: 1em;
-    position: absolute;
-    left: 14px;
-    top: 50%;
-    transform: translate(0%, -50%);
-    color: var(--color-figure-gray-secondary);
-
-    &.colored {
-      color: var(--color-link);
-    }
   }
 
-  .clear-button {
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    display: flex;
-    border-radius: 100%;
+  .filter-component {
+    --input-vertical-padding: 10px;
+    --input-height: 20px;
+    --input-border-color: var(--color-grid);
+    --input-text: var(--color-figure-gray-secondary);
 
-    &:focus {
-      @include focus-shadow;
+    /deep/ .filter__input {
+      @include font-styles(body);
     }
 
-    &.hide {
-      display: none;
-    }
-  }
-
-  .clear-icon {
-    width: 0.8em;
-    color: var(--color-figure-gray-secondary);
-  }
-
-  input {
-    border: 1px solid var(--color-grid);
-    padding: 10px 25px 10px 40px;
-    width: 100%;
-    box-sizing: border-box;
-    border-radius: $tiny-border-radius;
-
-    &:focus {
-      outline: none;
-      @include focus-shadow-form-element();
-    }
+    //border: 1px solid var(--color-grid);
+    //padding: 10px 25px 10px 40px;
+    //width: 100%;
+    //box-sizing: border-box;
+    //border-radius: $tiny-border-radius;
   }
 }
 
