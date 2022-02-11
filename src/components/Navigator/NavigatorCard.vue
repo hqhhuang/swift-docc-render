@@ -55,14 +55,13 @@
       <div class="navigator-filter">
         <div class="input-wrapper">
           <FilterInput
-            :value="filter"
+            v-model="filter"
             :tags="availableTags"
             :selected-tags.sync="selectedTagsModelValue"
             :placeholder="`Filter in ${technology}`"
             position-reversed
             class="filter-component"
             @clear="clearFilters"
-            @input="debounceInput"
           >
             <template #icon>
               <FilterIcon class="icon-inline filter-icon" />
@@ -177,7 +176,10 @@ export default {
   },
   data() {
     return {
+      // value to v-model the filter to
       filter: '',
+      // debounced filter value, to reduce the computed property computations. Used in filter logic.
+      debouncedFilter: '',
       selectedTags: [],
       availableTags: Object.values(FILTER_TAGS_TO_LABELS),
       /** @type {Object.<string, boolean>} */
@@ -193,10 +195,10 @@ export default {
         this.selectedTags = values.map(label => FILTER_LABELS_TO_TAGS[label]);
       },
     },
-    filterPattern: ({ filter }) => (!filter
+    filterPattern: ({ debouncedFilter }) => (!debouncedFilter
       ? undefined
       // remove the `g` for global, as that causes bugs when matching
-      : new RegExp(safeHighlightPattern(filter), 'i')),
+      : new RegExp(safeHighlightPattern(debouncedFilter), 'i')),
     /**
      * Return the item size for the Scroller element. Its higher when we show extra info.
      */
@@ -272,11 +274,11 @@ export default {
      * Creates a computed for the two items, that the openNodes calc depends on
      */
     nodeChangeDeps: ({
-      filteredChildren, activePathChildren, filter, selectedTags,
+      filteredChildren, activePathChildren, debouncedFilter, selectedTags,
     }) => ([
       filteredChildren,
       activePathChildren,
-      filter,
+      debouncedFilter,
       selectedTags,
     ]),
     hasFilter({ filter, selectedTags }) {
@@ -287,8 +289,9 @@ export default {
     this.restorePersistedState();
   },
   watch: {
+    filter: 'debounceInput',
     nodeChangeDeps: 'trackOpenNodes',
-    filter(value) {
+    debouncedFilter(value) {
       sessionStorage.set(STORAGE_KEYS.filter, value);
     },
     selectedTags(value) {
@@ -298,10 +301,11 @@ export default {
   methods: {
     clearFilters() {
       this.filter = '';
+      this.debouncedFilter = '';
       this.selectedTags = [];
     },
     debounceInput: debounce(function debounceInput(value) {
-      this.filter = value;
+      this.debouncedFilter = value;
     }, 500),
     /**
      * Finds which nodes need to be opened.
@@ -480,6 +484,7 @@ export default {
       // finally fetch any previously assigned filters or tags
       this.selectedTags = sessionStorage.get(STORAGE_KEYS.selectedTags, []);
       this.filter = sessionStorage.get(STORAGE_KEYS.filter, '');
+      this.debouncedFilter = this.filter;
       // scroll to the active element
       this.scrollToElement();
     },
