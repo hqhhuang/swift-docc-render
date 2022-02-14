@@ -43,6 +43,7 @@ export const TopicKind = {
   subscript: 'subscript',
   symbol: 'symbol',
   tutorial: 'tutorial',
+  project: 'project',
   typeMethod: 'type.method',
   typeProperty: 'type.property',
   typealias: 'typealias',
@@ -57,6 +58,7 @@ export const TopicKindAliases = {
   [TopicKind.enumCase]: TopicKind.enum,
   [TopicKind.operator]: TopicKind.funcOp,
   [TopicKind.propertyListKeyReference]: TopicKind.propertyListKey,
+  [TopicKind.project]: TopicKind.tutorial,
 };
 
 export const TopicKindColors = {

@@ -123,6 +123,7 @@ const TOPIC_KIND_TO_TAG = {
   [TopicKind.sampleCode]: FILTER_TAGS.sampleCode,
   [TopicKind.section]: FILTER_TAGS.tutorials,
   [TopicKind.tutorial]: FILTER_TAGS.tutorials,
+  [TopicKind.project]: FILTER_TAGS.tutorials,
 };
 
 /**

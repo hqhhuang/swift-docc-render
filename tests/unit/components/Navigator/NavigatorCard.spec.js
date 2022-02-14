@@ -50,7 +50,7 @@ const root0 = {
 };
 
 const root0Child0 = {
-  kind: 'tutorial',
+  kind: TopicKind.project,
   path: '/tutorials/fookit/first-child-depth-1',
   title: 'First Child, Depth 1',
   uid: 1,
@@ -60,7 +60,7 @@ const root0Child0 = {
   childUIDs: [],
 };
 const root0Child1 = {
-  kind: 'tutorial',
+  kind: TopicKind.project,
   path: '/tutorials/fookit/second-child-depth-1',
   title: 'Second Child, Depth 1',
   uid: 2,
@@ -320,6 +320,24 @@ describe('NavigatorCard', () => {
     const all = wrapper.findAll(NavigatorCardItem);
     expect(all).toHaveLength(1);
     expect(all.at(0).props('item')).toEqual(root1);
+    expect(RecycleScrollerStub.methods.scrollToItem).toHaveBeenCalledWith(0);
+  });
+
+  it('aliases `project` to `tutorial`, when filtering using tags', async () => {
+    const wrapper = createWrapper();
+    const filter = wrapper.find(FilterInput);
+    await flushPromises();
+    expect(RecycleScrollerStub.methods.scrollToItem).toHaveBeenCalledTimes(1);
+    filter.vm.$emit('update:selectedTags', [FILTER_TAGS_TO_LABELS.tutorials]);
+    await flushPromises();
+    expect(RecycleScrollerStub.methods.scrollToItem).toHaveBeenCalledTimes(2);
+    // assert only the parens of the match are visible
+    const all = wrapper.findAll(NavigatorCardItem);
+    expect(all).toHaveLength(4);
+    expect(all.at(0).props('item')).toEqual(root0);
+    expect(all.at(1).props('item')).toEqual(root0Child0);
+    expect(all.at(2).props('item')).toEqual(root0Child1);
+    expect(all.at(3).props('item')).toEqual(root0Child1GrandChild0);
     expect(RecycleScrollerStub.methods.scrollToItem).toHaveBeenCalledWith(0);
   });
 
