@@ -10,7 +10,7 @@
 
 <template>
   <div class="navigator-card">
-    <div class="head-wrapper" :class="{ 'extra-info': showExtendedInfo }">
+    <div class="head-wrapper">
       <button class="close-card-mobile" @click="$emit('close')">
         <InlineCloseIcon class="icon-inline close-icon" />
       </button>
@@ -34,7 +34,6 @@
         <NavigatorCardItem
           :item="item"
           :filter-pattern="filterPattern"
-          :show-extended-info="showExtendedInfo"
           :is-active="item.uid === activeUID"
           :is-bold="activePathMap[item.uid]"
           :expanded="openNodes[item.uid]"
@@ -201,9 +200,9 @@ export default {
       // remove the `g` for global, as that causes bugs when matching
       : new RegExp(safeHighlightPattern(debouncedFilter), 'i')),
     /**
-     * Return the item size for the Scroller element. Its higher when we show extra info.
+     * Return the item size for the Scroller element.
      */
-    itemSize: ({ showExtendedInfo }) => (showExtendedInfo ? LEAF_SIZES.max : LEAF_SIZES.min),
+    itemSize: () => LEAF_SIZES.min,
     /**
      * Generates a map of the children, with the uid as the key.
      * @return {Object.<string, NavigatorFlatItem>}
@@ -257,19 +256,15 @@ export default {
       if (!hasFilter) return [];
       const tagsSet = new Set(selectedTags);
       // find children that match current filters
-      const matches = children.filter(({ title, kind }) => {
+      return children.filter(({ title, kind }) => {
         // check if `title` matches the pattern, if provided
         const titleMatch = filterPattern ? filterPattern.test(title) : true;
         // check if `kind` matches any of the selected tags
         const tagMatch = selectedTags.length
           ? tagsSet.has(TOPIC_KIND_TO_TAG[kind]) : true;
-        return titleMatch && tagMatch;
+        // make sure groupMarker's dont get matched
+        return titleMatch && tagMatch && kind !== TopicKind.groupMarker;
       });
-      // remove duplicate UIDs
-      return [...new Set(
-        // find all the parents
-        matches.flatMap(({ uid }) => this.getParents(uid)),
-      )];
     },
     /**
      * Creates a computed for the two items, that the openNodes calc depends on
@@ -327,10 +322,11 @@ export default {
       ) {
         return;
       }
-      // decide which items to iterate over
+      // decide which items are open
       const nodes = !this.hasFilter
         ? activePathChildren
-        : filteredChildren;
+        // get all parents of the current match, excluding it in the process
+        : filteredChildren.flatMap(({ uid }) => this.getParents(uid).slice(0, -1));
       // if the activePath items change, we navigated to another page
       const pageChange = activePathChildrenBefore !== activePathChildren;
 
@@ -340,7 +336,7 @@ export default {
       const newOpenNodes = Object.fromEntries(filteredNodes);
       // if we navigate across pages, persist the previously open nodes
       this.openNodes = Object.assign(pageChange ? this.openNodes : {}, newOpenNodes);
-      this.generateNodesToRender({ scrollToElement: true });
+      this.generateNodesToRender();
     },
     /**
      * Toggle a node open/close
@@ -348,20 +344,27 @@ export default {
     toggle(node) {
       // check if the item is open
       const isOpen = this.openNodes[node.uid];
+      let include = [];
+      let exclude = [];
       // if open, we need to close it
       if (isOpen) {
         // clone the open nodes map
         const openNodes = clone(this.openNodes);
         // remove current node and all of it's children, from the open list
-        this.getAllChildren(node.uid).forEach(({ uid }) => {
+        const allChildren = this.getAllChildren(node.uid);
+        allChildren.forEach(({ uid }) => {
           delete openNodes[uid];
         });
         // set the new open nodes. Should be faster than iterating each and calling `this.$delete`.
         this.openNodes = openNodes;
+        // exclude all items, but the first
+        exclude = allChildren.slice(1);
       } else {
         this.$set(this.openNodes, node.uid, true);
+        // include all childUIDs to get opened
+        include = node.childUIDs.map(id => this.childrenMap[id]);
       }
-      this.generateNodesToRender({ scrollToElement: false });
+      this.augmentRenderNodes({ uid: node.uid, include, exclude });
     },
     /**
      * Handle toggling the entire tree open/close, using alt + click
@@ -370,6 +373,8 @@ export default {
       const isOpen = this.openNodes[node.uid];
       const openNodes = clone(this.openNodes);
       const allChildren = this.getAllChildren(node.uid);
+      let exclude = [];
+      let include = [];
       allChildren.forEach(({ uid }) => {
         if (isOpen) {
           delete openNodes[uid];
@@ -377,8 +382,15 @@ export default {
           openNodes[uid] = true;
         }
       });
+
+      // figure out which items to include and exclude
+      if (isOpen) {
+        exclude = allChildren.slice(1);
+      } else {
+        include = allChildren.slice(1);
+      }
       this.openNodes = openNodes;
-      this.generateNodesToRender({ scrollToElement: false });
+      this.augmentRenderNodes({ uid: node.uid, exclude, include });
     },
     /**
      * Get all children of a node recursively
@@ -393,13 +405,13 @@ export default {
       // loop over the stack
       while (stack.length) {
         // get the top item
-        current = stack.pop();
+        current = stack.shift();
         // find the object
         const obj = this.childrenMap[current];
         // add it's uid
         arr.push(obj);
-        // add all if it's children to the stack
-        stack.push(...obj.childUIDs);
+        // add all if it's children to the front of the stack
+        stack.unshift(...obj.childUIDs);
       }
 
       return arr;
@@ -433,26 +445,54 @@ export default {
      * Stores all the nodes we should render at this point.
      * This gets called everytime you open/close a node,
      * or when you start filtering.
-     * @param {Boolean} scrollToElement - should we scroll to the active or not, like when toggling
      * @return void
      */
-    async generateNodesToRender({ scrollToElement = false }) {
+    generateNodesToRender() {
       const {
         children, filteredChildren, hasFilter, openNodes,
       } = this;
-      // get the nodes to render
-      this.nodesToRender = (hasFilter ? filteredChildren : children)
-        .filter(child => (
-          // if parent is the root
-          child.parent === INDEX_ROOT_KEY
-          // if the parent is open
-          || openNodes[child.parent]
-        ));
+      // create a set of all matches and their parents
+      const allChildMatchesSet = new Set(filteredChildren
+        .flatMap(({ uid }) => this.getParents(uid)));
+      // create a set of direct matches
+      const filteredChildrenSet = new Set(filteredChildren);
+
+      // generate the list of nodes to render
+      this.nodesToRender = children
+        .filter((child) => {
+          // if we have no filter pattern, just show open nodes and root nodes
+          if (!hasFilter) {
+            // if parent is the root or parent is open
+            return child.parent === INDEX_ROOT_KEY || openNodes[child.parent];
+          }
+          // if parent is the root and is in the child match set
+          return (child.parent === INDEX_ROOT_KEY && allChildMatchesSet.has(child))
+            // if the parent is open and is a direct filter match
+            || (openNodes[child.parent] && filteredChildrenSet.has(this.childrenMap[child.parent]))
+            // if the item itself is a direct match
+            || allChildMatchesSet.has(child);
+        });
+      // persist all the open nodes
       this.persistState();
-      // check if we want to scroll to the element
-      if (!scrollToElement) return;
       // wait a frame, so the scroller is ready, `nextTick` is not enough.
       this.scrollToElement();
+    },
+    /**
+     * Augments the nodesToRender, by injecting or removing items.
+     * Used mainly to toggle items on/off
+     */
+    augmentRenderNodes({ uid, include = [], exclude = [] }) {
+      const index = this.nodesToRender.findIndex(n => n.uid === uid);
+      // decide if should remove or add
+      if (include.length) {
+        // if add, find where to inject items
+        this.nodesToRender.splice(index + 1, 0, ...include);
+      } else if (exclude.length) {
+        // if remove, filter out those items
+        const excludeSet = new Set(exclude);
+        this.nodesToRender = this.nodesToRender.filter(item => !excludeSet.has(item));
+      }
+      this.persistState();
     },
     /**
      * Persists the current state, so its not lost if you refresh or navigate away

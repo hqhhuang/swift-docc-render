@@ -111,7 +111,6 @@ const defaultProps = {
   technologyPath: '/path/to/technology',
   children,
   activePath,
-  showExtendedInfo: false,
   kind: TopicKind.module,
 };
 
@@ -156,7 +155,6 @@ describe('NavigatorCard', () => {
       isActive: false,
       isBold: true,
       item: root0,
-      showExtendedInfo: false,
     });
     // assert no-items-wrapper
     expect(wrapper.find('.no-items-wrapper').exists()).toBe(false);
@@ -176,15 +174,6 @@ describe('NavigatorCard', () => {
       ],
       value: '',
     });
-  });
-
-  it('determines the itemSize', async () => {
-    const wrapper = createWrapper();
-    const scroller = wrapper.find(RecycleScroller);
-    expect(scroller.props('itemSize')).toBe(LEAF_SIZES.min);
-    wrapper.setProps({ showExtendedInfo: true });
-    await wrapper.vm.$nextTick();
-    expect(scroller.props('itemSize')).toBe(LEAF_SIZES.max);
   });
 
   it('hides the RecycleScroller, if no items to show', async () => {
@@ -228,7 +217,6 @@ describe('NavigatorCard', () => {
       isActive: false,
       isBold: false,
       item,
-      showExtendedInfo: false,
     });
     unopenedItem.vm.$emit('toggle', item);
     await wrapper.vm.$nextTick();
@@ -366,6 +354,31 @@ describe('NavigatorCard', () => {
     expect(RecycleScrollerStub.methods.scrollToItem).toHaveBeenCalledWith(0);
   });
 
+  it('allows opening an item, that has a filter match', async () => {
+    const wrapper = createWrapper();
+    const filter = wrapper.find('input');
+    await flushPromises();
+    filter.setValue(root0Child1.title);
+    await flushPromises();
+    // assert match and all if it's parents are visible
+    let all = wrapper.findAll(NavigatorCardItem);
+    expect(all).toHaveLength(2);
+    expect(all.at(0).props('item')).toEqual(root0);
+    expect(all.at(1).props('item')).toEqual(root0Child1);
+    // open the last match
+    all.at(1).vm.$emit('toggle', root0Child1);
+    await flushPromises();
+    all = wrapper.findAll(NavigatorCardItem);
+    // assert the last match child is visible
+    expect(all).toHaveLength(3);
+    expect(all.at(2).props('item')).toEqual(root0Child1GrandChild0);
+    // close the match
+    all.at(1).vm.$emit('toggle', root0Child1);
+    await flushPromises();
+    // assert there are again only 2 matches
+    expect(wrapper.findAll(NavigatorCardItem)).toHaveLength(2);
+  });
+
   it('removes duplicate items, when multiple items with the same parent match the filter', async () => {
     const wrapper = createWrapper();
     const filter = wrapper.find(FilterInput);
@@ -486,16 +499,6 @@ describe('NavigatorCard', () => {
     wrapper.find('.close-card-mobile').trigger('click');
     await flushPromises();
     expect(wrapper.emitted('close')).toHaveLength(1);
-  });
-
-  it('applies a class and passes the `showExtendedInfo` prop', () => {
-    const wrapper = createWrapper({
-      propsData: {
-        showExtendedInfo: true,
-      },
-    });
-    expect(wrapper.find('.head-wrapper').classes()).toContain('extra-info');
-    expect(wrapper.find(NavigatorCardItem).props('showExtendedInfo')).toBe(true);
   });
 
   it('persists the filtered state', async () => {
