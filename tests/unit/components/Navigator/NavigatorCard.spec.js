@@ -356,9 +356,9 @@ describe('NavigatorCard', () => {
 
   it('allows opening an item, that has a filter match', async () => {
     const wrapper = createWrapper();
-    const filter = wrapper.find('input');
+    const filter = wrapper.find(FilterInput);
     await flushPromises();
-    filter.setValue(root0Child1.title);
+    filter.vm.$emit('input', root0Child1.title);
     await flushPromises();
     // assert match and all if it's parents are visible
     let all = wrapper.findAll(NavigatorCardItem);
