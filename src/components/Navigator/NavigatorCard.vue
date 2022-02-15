@@ -15,7 +15,7 @@
         <InlineCloseIcon class="icon-inline close-icon" />
       </button>
       <Reference :url="technologyPath" class="navigator-head">
-        <NavigatorLeafIcon :kind="kind" with-colors class="card-icon" />
+        <NavigatorLeafIcon :type="type" with-colors class="card-icon" />
         <div class="card-link">
           {{ technology }}
         </div>
@@ -85,7 +85,7 @@ import NavigatorCardItem from 'docc-render/components/Navigator/NavigatorCardIte
 import InlineCloseIcon from 'theme/components/Icons/InlineCloseIcon.vue';
 import FilterIcon from 'theme/components/Icons/FilterIcon.vue';
 import Reference from 'docc-render/components/ContentNode/Reference.vue';
-import { TopicKind } from 'docc-render/constants/kinds';
+import { TopicTypes } from 'docc-render/constants/TopicTypes';
 import FilterInput from 'docc-render/components/Filter/FilterInput.vue';
 
 const STORAGE_KEYS = {
@@ -114,15 +114,15 @@ const FILTER_LABELS_TO_TAGS = Object.fromEntries(
     .map(([key, value]) => [value, key]),
 );
 
-const TOPIC_KIND_TO_TAG = {
-  [TopicKind.article]: FILTER_TAGS.articles,
-  [TopicKind.learn]: FILTER_TAGS.tutorials,
-  [TopicKind.overview]: FILTER_TAGS.tutorials,
-  [TopicKind.resources]: FILTER_TAGS.tutorials,
-  [TopicKind.sampleCode]: FILTER_TAGS.sampleCode,
-  [TopicKind.section]: FILTER_TAGS.tutorials,
-  [TopicKind.tutorial]: FILTER_TAGS.tutorials,
-  [TopicKind.project]: FILTER_TAGS.tutorials,
+const TOPIC_TYPE_TO_TAG = {
+  [TopicTypes.article]: FILTER_TAGS.articles,
+  [TopicTypes.learn]: FILTER_TAGS.tutorials,
+  [TopicTypes.overview]: FILTER_TAGS.tutorials,
+  [TopicTypes.resources]: FILTER_TAGS.tutorials,
+  [TopicTypes.sampleCode]: FILTER_TAGS.sampleCode,
+  [TopicTypes.section]: FILTER_TAGS.tutorials,
+  [TopicTypes.tutorial]: FILTER_TAGS.tutorials,
+  [TopicTypes.project]: FILTER_TAGS.tutorials,
 };
 
 /**
@@ -137,7 +137,7 @@ export default {
     FILTER_TAGS,
     FILTER_TAGS_TO_LABELS,
     FILTER_LABELS_TO_TAGS,
-    TOPIC_KIND_TO_TAG,
+    TOPIC_TYPE_TO_TAG,
   },
   components: {
     FilterInput,
@@ -161,11 +161,7 @@ export default {
       type: Array,
       required: true,
     },
-    showExtendedInfo: {
-      type: Boolean,
-      default: false,
-    },
-    kind: {
+    type: {
       type: String,
       required: true,
     },
@@ -256,14 +252,14 @@ export default {
       if (!hasFilter) return [];
       const tagsSet = new Set(selectedTags);
       // find children that match current filters
-      return children.filter(({ title, kind }) => {
+      return children.filter(({ title, type }) => {
         // check if `title` matches the pattern, if provided
         const titleMatch = filterPattern ? filterPattern.test(title) : true;
-        // check if `kind` matches any of the selected tags
+        // check if `type` matches any of the selected tags
         const tagMatch = selectedTags.length
-          ? tagsSet.has(TOPIC_KIND_TO_TAG[kind]) : true;
+          ? tagsSet.has(TOPIC_TYPE_TO_TAG[type]) : true;
         // make sure groupMarker's dont get matched
-        return titleMatch && tagMatch && kind !== TopicKind.groupMarker;
+        return titleMatch && tagMatch && type !== TopicTypes.groupMarker;
       });
     },
     /**
@@ -552,7 +548,7 @@ export default {
 @import '~vue-virtual-scroller/dist/vue-virtual-scroller.css';
 
 $navigator-card-horizontal-spacing: 20px !default;
-$navigator-card-vertical-spacing: 18px !default;
+$navigator-card-vertical-spacing: 8px !default;
 
 .navigator-card {
   overflow: hidden auto;

@@ -12,7 +12,7 @@ import { shallowMount } from '@vue/test-utils';
 import { getSetting } from 'docc-render/utils/theme-settings';
 import DocumentationTopic from 'docc-render/components/DocumentationTopic.vue';
 import Language from 'docc-render/constants/Language';
-import { TopicKind } from '@/constants/kinds';
+import { TopicTypes } from '@/constants/TopicTypes';
 import DocumentationHero from '@/components/DocumentationTopic/DocumentationHero.vue';
 
 jest.mock('docc-render/utils/theme-settings');
@@ -113,7 +113,7 @@ const propsData = {
   },
   identifier: 'doc://fookit',
   interfaceLanguage: 'swift',
-  symbolKind: TopicKind.module,
+  symbolKind: TopicTypes.module,
   objcPath: 'documentation/objc',
   swiftPath: 'documentation/swift',
   primaryContentSections: [
@@ -201,16 +201,16 @@ describe('DocumentationTopic', () => {
   it('renders a `DocumentationHero`', () => {
     const hero = wrapper.find(DocumentationHero);
     expect(hero.exists()).toBe(true);
-    expect(hero.props()).toEqual({ kind: propsData.symbolKind });
+    expect(hero.props()).toEqual({ type: propsData.symbolKind });
   });
 
   it('renders a `DocumentationHero`, with a the `role`, if no symbolKind', () => {
     wrapper.setProps({
-      role: TopicKind.article,
+      role: TopicTypes.article,
       symbolKind: '',
     });
     const hero = wrapper.find(DocumentationHero);
-    expect(hero.props()).toEqual({ kind: TopicKind.article });
+    expect(hero.props()).toEqual({ type: TopicTypes.article });
   });
 
   it('renders a `Title`', () => {

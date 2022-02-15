@@ -10,11 +10,11 @@
 
 <template>
   <NavBase
-    :breakpoint="BreakpointName.medium"
     :hasOverlay="false"
     hasSolidBackground
     :hasNoBorder="hasNoBorder"
     :isDark="isDark"
+    isWideFormat
     hasFullWidthBorder
     class="documentation-nav"
     aria-label="API Reference"
@@ -148,9 +148,7 @@ export default {
 /deep/ .nav-menu {
   @include font-styles(documentation-nav);
   // vertically align the items
-  @include breakpoint-only-largenav() {
-    padding-top: 0;
-  }
+  padding-top: 0;
 }
 
 .documentation-nav {
@@ -175,7 +173,7 @@ export default {
 }
 
 .sidenav-icon {
-  width: 15px;
-  height: 15px;
+  width: 19px;
+  height: 19px;
 }
 </style>

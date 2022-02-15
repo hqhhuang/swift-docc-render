@@ -14,12 +14,12 @@
       v-if="!isFetching"
       :technology="technology.title"
       :technology-path="technology.path || technology.url"
-      :kind="kind"
+      :type="type"
       :children="flatChildren"
       :active-path="activePath"
       @close="$emit('close')"
     />
-    <div v-else>
+    <div v-else class="loading-placeholder">
       Fetching...
     </div>
   </div>
@@ -30,13 +30,13 @@ import NavigatorCard from 'docc-render/components/Navigator/NavigatorCard.vue';
 import throttle from 'docc-render/utils/throttle';
 import { INDEX_ROOT_KEY } from 'docc-render/constants/sidebar';
 import { baseNavStickyAnchorId } from 'docc-render/constants/nav';
-import { TopicKind } from 'docc-render/constants/kinds';
+import { TopicTypes } from 'docc-render/constants/TopicTypes';
 
 /**
  * @typedef NavigatorFlatItem
  * @property {number} uid - generated UID
  * @property {string} title - title of symbol
- * @property {string} kind - symbol kind, used for the icon
+ * @property {string} type - symbol type, used for the icon
  * @property {array} abstract - symbol abstract
  * @property {string} path - path to page, used in navigation
  * @property {number} parent - parent UID
@@ -98,7 +98,7 @@ export default {
     /**
      * The root item is always a module
      */
-    kind: () => TopicKind.module,
+    type: () => TopicTypes.module,
   },
   methods: {
     /**
@@ -112,7 +112,7 @@ export default {
       ), 0);
     },
     /**
-     * @param {{path: string, kind: string, title: string, children?: [] }[]} childrenNodes
+     * @param {{path: string, type: string, title: string, children?: [] }[]} childrenNodes
      * @param {NavigatorFlatItem | null} parent
      * @param {Number} depth
      * @return {NavigatorFlatItem[]}
@@ -181,10 +181,9 @@ export default {
 .navigator {
   position: sticky;
   top: $nav-height;
-  max-height: calc(100vh - #{$nav-height} - var(--sticky-top-offset));
-  height: 100%;
+  height: calc(100vh - #{$nav-height} - var(--sticky-top-offset));
   box-sizing: border-box;
-  transition: max-height 0.3s linear;
+  transition: height 0.3s linear;
   border-left: 1px solid var(--color-grid);
 
   @include breakpoint(small) {
@@ -192,5 +191,11 @@ export default {
     max-height: 100%;
     border-left: none;
   }
+}
+
+.loading-placeholder {
+  color: var(--color-figure-gray-secondary);
+  padding: 12px;
+  @include font-styles(body-reduced);
 }
 </style>
