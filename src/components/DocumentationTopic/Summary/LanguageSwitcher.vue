@@ -124,6 +124,7 @@ export default {
 
 .language, .language-list {
   font-size: 14px;
+  margin-top: 0;
   display: flex;
   flex-direction: row;
 }
@@ -143,7 +144,6 @@ export default {
     &.swift {
       border-right: 1px solid var(--color-fill-gray-tertiary);
       margin-right: 10px;
-      padding-right: 10px;
     }
   }
 }

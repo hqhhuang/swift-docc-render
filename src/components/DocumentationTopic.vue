@@ -18,18 +18,18 @@
           <Availability v-if="platforms" :platforms="platforms" />
         </DocumentationHero>
         <Summary v-if="!hideSummary" class="ribbon">
-          <LanguageSwitcher
-            v-if="shouldShowLanguageSwitcher"
-            :interfaceLanguage="interfaceLanguage"
-            :objcPath="objcPath"
-            :swiftPath="swiftPath"
-          />
           <TechnologyList v-if="modules" :technologies="modules" />
           <TechnologyList
             v-if="extendsTechnology"
             class="extends-technology"
             title="Extends"
             :technologies="[{ name: extendsTechnology }]"
+          />
+          <LanguageSwitcher
+            v-if="shouldShowLanguageSwitcher"
+            :interfaceLanguage="interfaceLanguage"
+            :objcPath="objcPath"
+            :swiftPath="swiftPath"
           />
         </Summary>
         <div class="container" :class="{ 'full-width': hideSummary }">

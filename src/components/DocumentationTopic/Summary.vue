@@ -27,8 +27,7 @@ export default {
 .summary {
   color: var(--colors-secondary-label, var(--color-secondary-label));
   font-size: rem(16px);
-  margin-bottom: $section-spacing-single-side;
-  padding: 5px 0 0 4em;
+  padding: 5px 0;
   background-color: var(--color-fill-gray-quaternary);
   display: flex;
   align-items: center;

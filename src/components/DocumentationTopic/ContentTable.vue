@@ -47,14 +47,18 @@ export default {
   @include inTargetIde {
     background: var(--color-content-table-content-color);
   }
-  padding: $section-spacing-single-side 0;
 }
 
 .container {
   @include breakpoint-dynamic-sidebar-content;
+  padding-bottom: $section-spacing-single-side;
 }
 
 .title {
   @include font-styles(heading-2-reduced);
+  padding-top: $section-spacing-single-side;
+  border-top-color: var(--color-grid);
+  border-top-style: solid;
+  border-top-width: 1px;
 }
 </style>

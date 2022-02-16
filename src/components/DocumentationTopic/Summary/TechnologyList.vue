@@ -73,18 +73,10 @@ export default {
 
 .technologies, .technology-list {
   display: flex;
-  flex-direction: row;
-}
-
-.technology {
-  font-size: rem(14px);
-  margin-bottom: 0.5rem;
-  text-rendering: optimizeLegibility;
 }
 
 .name {
   font-size: rem(14px);
-  margin-bottom: 0.5rem;
   text-rendering: optimizeLegibility;
 
   &::after {

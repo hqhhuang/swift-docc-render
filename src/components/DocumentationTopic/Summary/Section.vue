@@ -18,10 +18,10 @@ export default { name: 'Section' };
 
 <style scoped lang="scss">
 .summary-section {
-  margin: 0 0 1.5rem;
+  margin-right: 1.5rem;
 
   &:last-of-type {
-    margin-bottom: 0;
+    margin-right: 0;
   }
 }
 </style>

@@ -359,7 +359,7 @@ describe('DocumentationTopic', () => {
       });
     });
 
-    it('renders an `TechnologyList` component in the sidebar', () => {
+    it('renders an `TechnologyList` component', () => {
       expect(wrapper.find('.extends-technology').exists()).toBe(false);
       const extendsTechnology = 'FooTechnology';
 
