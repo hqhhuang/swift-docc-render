@@ -29,6 +29,9 @@ export default {
   font-size: rem(16px);
   margin-bottom: $section-spacing-single-side;
   padding: 5px 0 0 4em;
+  background-color: var(--color-fill-gray-quaternary);
+  display: flex;
+  align-items: center;
 
   @include breakpoint(medium) {
     padding-left: 2em;

@@ -10,7 +10,6 @@
 
 <template>
   <Section class="availability" role="complementary" aria-label="Availability">
-    <Title>Availability</Title>
     <List class="platform-list">
       <Item
         v-for="platform in platforms"
@@ -19,39 +18,39 @@
         class="platform"
         :change="!!changeFor(platform.name)"
       >
-        <AvailabilityRange
-          :deprecatedAt="platform.deprecatedAt"
-          :introducedAt="platform.introducedAt"
-          :platformName="platform.name"
-        />
-        <Badge v-if="platform.deprecatedAt" variant="deprecated" />
-        <Badge v-else-if="platform.beta" variant="beta" />
+        <AvailabilityBadge>
+          <AvailabilityRange
+            :deprecatedAt="platform.deprecatedAt"
+            :introducedAt="platform.introducedAt"
+            :platformName="platform.name"
+          />
+        </AvailabilityBadge>
+        <AvailabilityBadge v-if="platform.deprecatedAt" variant="deprecated" />
+        <AvailabilityBadge v-else-if="platform.beta" variant="beta" />
       </Item>
     </List>
   </Section>
 </template>
 
 <script>
-import Badge from 'docc-render/components/Badge.vue';
 import { getAPIChanges } from 'docc-render/mixins/apiChangesHelpers';
 import { ChangeTypes } from 'docc-render/constants/Changes';
 import AvailabilityRange from './AvailabilityRange.vue';
 import List from './List.vue';
 import ListItem from './ListItem.vue';
 import Section from './Section.vue';
-import Title from './Title.vue';
+import AvailabilityBadge from './AvailabilityBadge.vue';
 
 export default {
   name: 'Availability',
   mixins: [getAPIChanges],
   inject: ['identifier', 'store'],
   components: {
-    Badge,
     AvailabilityRange,
+    AvailabilityBadge,
     Item: ListItem,
     List,
     Section,
-    Title,
   },
   props: {
     platforms: {
@@ -93,8 +92,13 @@ export default {
 <style scoped lang="scss">
 @import 'docc-render/styles/_core.scss';
 
-.availability, .platform-list, .platform {
+ .platform-list {
+   margin-top: 20px;
+ }
+
+.availability, .platform {
   box-sizing: inherit;
+  display: inline-block;
 }
 
 .platform {
