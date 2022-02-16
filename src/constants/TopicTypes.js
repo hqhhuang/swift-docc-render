@@ -36,7 +36,6 @@ export const TopicTypes = {
   propertyListKeyReference: 'propertyListKeyReference',
   protocol: 'protocol',
   resources: 'resources',
-  project: 'project',
   root: 'root',
   sampleCode: 'sampleCode',
   section: 'section',
