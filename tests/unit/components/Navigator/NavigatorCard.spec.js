@@ -50,7 +50,7 @@ const root0 = {
 };
 
 const root0Child0 = {
-  type: TopicKind.project,
+  type: TopicTypes.project,
   path: '/tutorials/fookit/first-child-depth-1',
   title: 'First Child, Depth 1',
   uid: 1,
@@ -60,7 +60,7 @@ const root0Child0 = {
   childUIDs: [],
 };
 const root0Child1 = {
-  type: TopicKind.project,
+  type: TopicTypes.project,
   path: '/tutorials/fookit/second-child-depth-1',
   title: 'Second Child, Depth 1',
   uid: 2,

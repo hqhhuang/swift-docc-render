@@ -35,6 +35,7 @@ export const TopicTypes = {
   propertyListKeyReference: 'propertyListKeyReference',
   protocol: 'protocol',
   resources: 'resources',
+  project: 'project',
   root: 'root',
   sampleCode: 'sampleCode',
   section: 'section',
@@ -56,6 +57,7 @@ export const TopicTypeAliases = {
   [TopicTypes.enumCase]: TopicTypes.enum,
   [TopicTypes.operator]: TopicTypes.funcOp,
   [TopicTypes.propertyListKeyReference]: TopicTypes.propertyListKey,
+  [TopicTypes.project]: TopicTypes.tutorial,
 };
 
 export const TopicTypeColors = {
