@@ -13,6 +13,7 @@ import { getSetting } from 'docc-render/utils/theme-settings';
 import DocumentationTopic from 'docc-render/components/DocumentationTopic.vue';
 import Language from 'docc-render/constants/Language';
 import { TopicTypes } from '@/constants/TopicTypes';
+import DocumentationHero from '@/components/DocumentationTopic/DocumentationHero.vue';
 
 jest.mock('docc-render/utils/theme-settings');
 getSetting.mockImplementation((_, fallback) => fallback);
@@ -197,16 +198,32 @@ describe('DocumentationTopic', () => {
     expect(main.attributes('tabindex')).toBe('0');
   });
 
+  it('renders a `DocumentationHero`', () => {
+    const hero = wrapper.find(DocumentationHero);
+    expect(hero.exists()).toBe(true);
+    expect(hero.props()).toEqual({ type: propsData.symbolKind });
+  });
+
+  it('renders a `DocumentationHero`, with a the `role`, if no symbolKind', () => {
+    wrapper.setProps({
+      role: TopicTypes.article,
+      symbolKind: '',
+    });
+    const hero = wrapper.find(DocumentationHero);
+    expect(hero.props()).toEqual({ type: TopicTypes.article });
+  });
+
   it('renders a `Title`', () => {
-    const title = wrapper.find(Title);
+    const hero = wrapper.find(DocumentationHero);
+    const title = hero.find(Title);
     expect(title.exists()).toBe(true);
     expect(title.props('eyebrow')).toBe(propsData.roleHeading);
     expect(title.text()).toBe(propsData.title);
   });
 
   it('renders an abstract', () => {
-    const descr = wrapper.find(Description);
-    const abstract = descr.find(Abstract);
+    const hero = wrapper.find(DocumentationHero);
+    const abstract = hero.find(Abstract);
     expect(abstract.exists()).toBe(true);
     expect(abstract.props('content')).toEqual(propsData.abstract);
   });
@@ -224,8 +241,8 @@ describe('DocumentationTopic', () => {
     wrapper.setProps({
       abstract: emptyParagraph,
     });
-    const descr = wrapper.find(Description);
-    const abstract = descr.find(Abstract);
+    const hero = wrapper.find(DocumentationHero);
+    const abstract = hero.find(Abstract);
     expect(abstract.exists()).toBe(true);
     expect(abstract.props('content')).toEqual(emptyParagraph);
   });
