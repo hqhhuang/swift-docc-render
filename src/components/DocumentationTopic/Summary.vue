@@ -25,8 +25,8 @@ export default {
 @import 'docc-render/styles/_core.scss';
 
 .summary {
+  @include font-styles(label-reduced);
   color: var(--colors-secondary-label, var(--color-secondary-label));
-  font-size: rem(16px);
   padding: 11px 0;
   background-color: var(--color-fill-gray-quaternary);
   display: flex;

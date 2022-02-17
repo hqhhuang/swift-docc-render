@@ -116,10 +116,6 @@ export default {
     margin-top: 6px;
   }
 
-  // &-badge {
-  //   margin-left: rem(8px);
-  // }
-
   @include change-highlight-horizontal-spacing();
   padding-left: 0;
   padding-right: 0;
