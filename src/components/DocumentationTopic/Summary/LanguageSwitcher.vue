@@ -123,7 +123,6 @@ export default {
 @import 'docc-render/styles/_core.scss';
 
 .language, .language-list {
-  font-size: 14px;
   margin-top: 0;
   display: flex;
 }

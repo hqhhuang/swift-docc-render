@@ -140,7 +140,7 @@ export default {
 }
 
 .badge {
-  border-radius: 10.82px;
+  border-radius: 11px;
   margin-left: 0;
 }
 </style>

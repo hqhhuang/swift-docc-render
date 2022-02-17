@@ -76,7 +76,6 @@ export default {
 }
 
 .name {
-  font-size: rem(14px);
   text-rendering: optimizeLegibility;
 
   &::after {
