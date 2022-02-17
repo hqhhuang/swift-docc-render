@@ -17,10 +17,15 @@ export default { name: 'Section' };
 </script>
 
 <style scoped lang="scss">
+@import 'docc-render/styles/_core.scss';
 .summary-section {
   margin-right: 1.5rem;
 
   &:last-of-type {
+    margin-right: 0;
+  }
+
+  @include breakpoint(small) {
     margin-right: 0;
   }
 }

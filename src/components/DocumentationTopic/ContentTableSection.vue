@@ -10,12 +10,12 @@
 
 <template>
   <div class="contenttable-section">
-    <div class="section-title" :span="span.title">
+    <div class="section-title">
       <slot name="title">
         <h3 class="title">{{ title }}</h3>
       </slot>
     </div>
-    <div class="section-content" :span="span.content">
+    <div class="section-content">
       <slot name="abstract" />
       <slot name="discussion" />
       <slot />
@@ -30,22 +30,6 @@ export default {
     title: {
       type: String,
       required: true,
-    },
-  },
-  computed: {
-    span() {
-      return {
-        title: {
-          large: 3,
-          medium: 3,
-          small: 12,
-        },
-        content: {
-          large: 9,
-          medium: 9,
-          small: 12,
-        },
-      };
     },
   },
 };

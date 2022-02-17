@@ -16,7 +16,7 @@ const {
   Item,
   List,
   Section,
-  AvailabilityBadge,
+  Badge,
 } = Availability.components;
 
 describe('Availability', () => {
@@ -76,7 +76,7 @@ describe('Availability', () => {
   });
 
   it('renders a deprecated badge', () => {
-    const badge = wrapper.findAll(AvailabilityBadge);
+    const badge = wrapper.findAll(Badge);
     expect(badge.exists()).toBe(true);
     expect(badge.length).toBe(7);
     expect(badge.at(2).props('variant')).toBe('deprecated');
@@ -94,7 +94,7 @@ describe('Availability', () => {
         },
       ],
     });
-    const badge = wrapper.findAll(AvailabilityBadge);
+    const badge = wrapper.findAll(Badge);
     expect(badge.exists()).toBe(true);
     expect(badge.at(1).props('variant')).toBe('beta');
   });
@@ -110,7 +110,7 @@ describe('Availability', () => {
         },
       ],
     });
-    const badges = wrapper.findAll(AvailabilityBadge);
+    const badges = wrapper.findAll(Badge);
     expect(badges.length).toBe(2);
     expect(badges.at(1).props('variant')).toBe('deprecated');
   });
@@ -124,7 +124,7 @@ describe('Availability', () => {
         },
       ],
     });
-    const badge = wrapper.findAll(AvailabilityBadge);
+    const badge = wrapper.findAll(Badge);
     expect(badge.length).toBe(1);
   });
 

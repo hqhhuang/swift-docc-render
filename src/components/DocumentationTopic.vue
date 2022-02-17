@@ -17,7 +17,7 @@
           <Abstract v-if="abstract" :content="abstract" />
           <Availability v-if="platforms" :platforms="platforms" />
         </DocumentationHero>
-        <Summary v-if="!hideSummary" class="ribbon">
+        <Summary v-if="!hideSummary">
           <TechnologyList v-if="modules" :technologies="modules" />
           <TechnologyList
             v-if="extendsTechnology"
@@ -32,7 +32,7 @@
             :swiftPath="swiftPath"
           />
         </Summary>
-        <div class="container" :class="{ 'full-width': hideSummary }">
+        <div class="container">
           <Description :hasOverview="hasOverview">
             <RequirementMetadata
               v-if="isRequirement"
@@ -360,12 +360,6 @@ export default {
       flex: 1;
     }
   }
-}
-
-.ribbon {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
 }
 
 .container {

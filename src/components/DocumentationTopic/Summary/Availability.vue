@@ -18,36 +18,36 @@
         class="platform"
         :change="!!changeFor(platform.name)"
       >
-        <AvailabilityBadge>
+        <Badge>
           <AvailabilityRange
             :deprecatedAt="platform.deprecatedAt"
             :introducedAt="platform.introducedAt"
             :platformName="platform.name"
           />
-        </AvailabilityBadge>
-        <AvailabilityBadge v-if="platform.deprecatedAt" variant="deprecated" />
-        <AvailabilityBadge v-else-if="platform.beta" variant="beta" />
+        </Badge>
+        <Badge v-if="platform.deprecatedAt" variant="deprecated" />
+        <Badge v-else-if="platform.beta" variant="beta" />
       </Item>
     </List>
   </Section>
 </template>
 
 <script>
+import Badge from 'docc-render/components/Badge.vue';
 import { getAPIChanges } from 'docc-render/mixins/apiChangesHelpers';
 import { ChangeTypes } from 'docc-render/constants/Changes';
 import AvailabilityRange from './AvailabilityRange.vue';
 import List from './List.vue';
 import ListItem from './ListItem.vue';
 import Section from './Section.vue';
-import AvailabilityBadge from './AvailabilityBadge.vue';
 
 export default {
   name: 'Availability',
   mixins: [getAPIChanges],
   inject: ['identifier', 'store'],
   components: {
+    Badge,
     AvailabilityRange,
-    AvailabilityBadge,
     Item: ListItem,
     List,
     Section,
@@ -99,10 +99,14 @@ export default {
 .availability, .platform {
   box-sizing: inherit;
   display: inline-block;
+
+  @include breakpoint(small) {
+    display: flex;
+    justify-content: center;
+  }
 }
 
 .platform {
-  padding-right: 2rem;
   box-sizing: border-box;
 
   &::after {
@@ -112,17 +116,14 @@ export default {
     margin-top: 6px;
   }
 
-  &-badge {
-    margin-left: rem(8px);
-  }
+  // &-badge {
+  //   margin-left: rem(8px);
+  // }
 
   @include change-highlight-horizontal-spacing();
   padding-left: 0;
-
+  padding-right: 0;
   margin-bottom: 0.25rem;
-  &:last-child {
-    margin-bottom: 0;
-  }
 
   @include change-highlight-vertical-spacing();
 
@@ -140,5 +141,10 @@ export default {
 
     @include change-highlight-horizontal-text-alignment();
   }
+}
+
+.badge {
+  border-radius: 10.82px;
+  margin-left: 0;
 }
 </style>

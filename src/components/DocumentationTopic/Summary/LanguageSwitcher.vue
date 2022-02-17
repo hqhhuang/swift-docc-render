@@ -126,12 +126,14 @@ export default {
   font-size: 14px;
   margin-top: 0;
   display: flex;
-  flex-direction: row;
 }
 
 .language-option {
+  &.swift {
+    margin-right: 10px;
+  }
+
   @include breakpoint(small) {
-    display: block;
     margin-bottom: 0.25rem;
   }
 
@@ -143,7 +145,6 @@ export default {
   @include breakpoints-from(medium) {
     &.swift {
       border-right: 1px solid var(--color-fill-gray-tertiary);
-      margin-right: 10px;
     }
   }
 }
