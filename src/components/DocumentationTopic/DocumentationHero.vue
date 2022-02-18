@@ -120,7 +120,7 @@ $doc-hero-icon-color: dark-color(fill-secondary) !default;
   &__content {
     position: relative;
     z-index: 1;
-    @include breakpoint-dynamic-sidebar-content;
+    @include dynamic-content-container;
   }
 }
 </style>
