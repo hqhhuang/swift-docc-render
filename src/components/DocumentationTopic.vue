@@ -281,9 +281,10 @@ export default {
         0,
       );
     },
-    hasOverview: ({ primaryContentSections = [] }) => primaryContentSections.filter(section => (
-      section.kind === PrimaryContent.constants.SectionKind.content
-    )).length > 0,
+    hasOverview:
+      ({ primaryContentSections = [], abstract = [] }) => primaryContentSections.filter(section => (
+        section.kind === PrimaryContent.constants.SectionKind.content
+      )).length > 0 || abstract.length > 0,
     // Use `variants` data to build a map of paths associated with each unique
     // `interfaceLanguage` trait.
     languagePaths: ({ variants }) => variants.reduce((memo, variant) => (
