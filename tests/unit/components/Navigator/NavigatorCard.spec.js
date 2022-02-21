@@ -6,7 +6,7 @@
  *
  * See https://swift.org/LICENSE.txt for license information
  * See https://swift.org/CONTRIBUTORS.txt for Swift project authors
- */
+*/
 
 import NavigatorCard, { STORAGE_KEYS } from '@/components/Navigator/NavigatorCard.vue';
 import { shallowMount } from '@vue/test-utils';
@@ -477,6 +477,18 @@ describe('NavigatorCard', () => {
     sessionStorage.get.mockImplementation((key) => {
       if (key === STORAGE_KEYS.technology) return defaultProps.technology;
       if (key === STORAGE_KEYS.nodesToRender) return [root0.uid, 'something-different'];
+      return '';
+    });
+    const wrapper = createWrapper();
+    // assert we are render more than just the single item in the store
+    expect(wrapper.findAll(NavigatorCardItem)).toHaveLength(4);
+  });
+
+  it('does not restore the state, if the nodesToRender and filter are empty', () => {
+    sessionStorage.get.mockImplementation((key) => {
+      if (key === STORAGE_KEYS.technology) return defaultProps.technology;
+      if (key === STORAGE_KEYS.nodesToRender) return [];
+      if (key === STORAGE_KEYS.filter) return '';
       return '';
     });
     const wrapper = createWrapper();

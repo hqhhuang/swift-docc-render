@@ -82,7 +82,7 @@
 
 <script>
 import Language from 'docc-render/constants/Language';
-import pageTitle from 'docc-render/mixins/pageTitle';
+import metadata from 'docc-render/mixins/metadata';
 import { getSetting } from 'docc-render/utils/theme-settings';
 
 import Aside from 'docc-render/components/ContentNode/Aside.vue';
@@ -107,7 +107,7 @@ import Topics from './DocumentationTopic/Topics.vue';
 
 export default {
   name: 'DocumentationTopic',
-  mixins: [pageTitle],
+  mixins: [metadata],
   inject: {
     isTargetIDE: {
       default() {
@@ -303,6 +303,9 @@ export default {
         && platforms.length
         && platforms.some(platform => platform.beta),
     pageTitle: ({ title }) => title,
+    pageDescription: ({ abstract, extractFirstParagraphText }) => (
+      abstract ? extractFirstParagraphText(abstract) : null
+    ),
     shouldShowLanguageSwitcher: ({ objcPath, swiftPath }) => objcPath && swiftPath,
     hideSummary: () => getSetting(['features', 'docs', 'summary', 'hide'], false),
   },

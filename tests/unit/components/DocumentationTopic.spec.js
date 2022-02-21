@@ -15,8 +15,9 @@ import Language from 'docc-render/constants/Language';
 import { TopicTypes } from '@/constants/TopicTypes';
 import DocumentationHero from '@/components/DocumentationTopic/DocumentationHero.vue';
 
-jest.mock('docc-render/utils/theme-settings');
-getSetting.mockImplementation((_, fallback) => fallback);
+jest.mock('docc-render/utils/theme-settings', () => ({
+  getSetting: jest.fn((_, fallback) => fallback),
+}));
 
 const {
   Abstract,
@@ -47,6 +48,11 @@ const foo = {
       text: 'foo',
     },
   ],
+};
+
+const abstract = {
+  type: 'text',
+  text: 'Abstract text',
 };
 
 const deprecationSummary = [
@@ -101,7 +107,7 @@ const sampleCodeDownload = {
 };
 
 const propsData = {
-  abstract: [foo],
+  abstract: [abstract],
   conformance: { constraints: [], availabilityPrefx: [] },
   hierarchy: {
     paths: [
@@ -150,9 +156,16 @@ describe('DocumentationTopic', () => {
     wrapper = shallowMount(DocumentationTopic, { propsData });
   });
 
-  it('provides a page title', () => {
-    expect(wrapper.vm.pageTitle).toBe(propsData.title);
-    expect(document.title).toBe('FooKit | Documentation');
+  it('provides a page title based on title prop', () => {
+    const titleText = `${propsData.title} | Documentation`;
+
+    expect(document.title).toBe(titleText);
+  });
+
+  it('provides a page description based on the abstract text', () => {
+    const abstractText = propsData.abstract[0].text;
+
+    expect(document.querySelector('meta[name="description"]').content).toBe(abstractText);
   });
 
   it('provides the languages', () => {
@@ -327,10 +340,9 @@ describe('DocumentationTopic', () => {
     it('hides the Summary, if the global settings say so', () => {
       // this should really only mock the resolved value for the specific flag,
       // but this is fine for now
-      getSetting.mockResolvedValue(true);
+      getSetting.mockResolvedValueOnce(true);
       wrapper = shallowMount(DocumentationTopic, { propsData });
       expect(wrapper.find(Summary).exists()).toBe(false);
-      getSetting.mockReset();
     });
 
     it('renders a `Availability` with platforms data', () => {
