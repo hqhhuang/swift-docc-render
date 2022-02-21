@@ -16,7 +16,7 @@ import throttle from 'docc-render/utils/throttle';
 import { TopicTypes } from '@/constants/TopicTypes';
 import { createEvent } from '../../../test-utils';
 
-jest.mock('@/utils/throttle', () => jest.fn(v => v));
+jest.mock('docc-render/utils/throttle', () => jest.fn(v => v));
 
 const technology = {
   title: 'FooTechnology',
