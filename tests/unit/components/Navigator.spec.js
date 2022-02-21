@@ -12,7 +12,7 @@ import Navigator from '@/components/Navigator.vue';
 import { shallowMount } from '@vue/test-utils';
 import NavigatorCard from '@/components/Navigator/NavigatorCard.vue';
 import { baseNavStickyAnchorId } from 'docc-render/constants/nav';
-import throttle from '@/utils/throttle';
+import throttle from 'docc-render/utils/throttle';
 import { TopicTypes } from '@/constants/TopicTypes';
 import { createEvent } from '../../../test-utils';
 
