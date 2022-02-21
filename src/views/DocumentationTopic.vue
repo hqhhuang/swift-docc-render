@@ -23,10 +23,11 @@
         :isSymbolBeta="isSymbolBeta"
         :currentTopicTags="topicProps.tags"
         :references="topicProps.references"
+        :isWideFormat="enableNavigator"
         @toggle-sidenav="isSideNavOpen = !isSideNavOpen"
       />
       <component
-        :is="isTargetIDE ? 'div': 'AdjustableSidebarWidth'"
+        :is="enableNavigator ? 'AdjustableSidebarWidth' : 'div'"
         v-bind="sidebarProps"
         v-on="sidebarListeners"
       >
@@ -64,6 +65,7 @@
 
 <script>
 import { apply } from 'docc-render/utils/json-patch';
+import { getSetting } from 'docc-render/utils/theme-settings';
 import {
   clone,
   fetchDataForRouteEnter,
@@ -224,11 +226,21 @@ export default {
           && platforms.every(platform => platform.deprecatedAt)
         )
       ),
-    sidebarProps: ({ isSideNavOpen, isTargetIDE }) => (isTargetIDE ? {} : { class: 'full-width-container', openExternally: isSideNavOpen }),
+    // Always disable the navigator for IDE targets. For other targets, allow
+    // this feature to be enabled through the `features.docs.navigator.enable`
+    // setting in `theme-settings.json`
+    enableNavigator: ({ isTargetIDE }) => !isTargetIDE && (
+      getSetting(['features', 'docs', 'navigator', 'enable'], false)
+    ),
+    sidebarProps: ({ isSideNavOpen, enableNavigator }) => (
+      enableNavigator
+        ? { class: 'full-width-container topic-wrapper', openExternally: isSideNavOpen }
+        : { class: 'static-width-container topic-wrapper' }
+    ),
     sidebarListeners() {
-      return this.isTargetIDE ? {} : {
+      return this.enableNavigator ? ({
         'update:openExternally': (v) => { this.isSideNavOpen = v; },
-      };
+      }) : {};
     },
   },
   methods: {
@@ -305,7 +317,7 @@ export default {
 .doc-topic-view {
   display: flex;
   flex-flow: column;
-  background: var(--color-fill-secondary);
+  background: var(--colors-text-background, var(--color-text-background));
 }
 
 .doc-topic-aside {
@@ -316,11 +328,12 @@ export default {
   }
 }
 
-.full-width-container {
+.topic-wrapper {
   flex: 1 1 auto;
   width: 100%;
-  background: var(--colors-text-background, var(--color-text-background));
+}
 
+.full-width-container {
   @include inTargetWeb {
     @include breakpoint-full-width-container()
   }

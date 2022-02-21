@@ -81,7 +81,7 @@
 
 <script>
 import Language from 'docc-render/constants/Language';
-import pageTitle from 'docc-render/mixins/pageTitle';
+import metadata from 'docc-render/mixins/metadata';
 import { getSetting } from 'docc-render/utils/theme-settings';
 
 import Aside from 'docc-render/components/ContentNode/Aside.vue';
@@ -105,7 +105,7 @@ import Topics from './DocumentationTopic/Topics.vue';
 
 export default {
   name: 'DocumentationTopic',
-  mixins: [pageTitle],
+  mixins: [metadata],
   inject: {
     isTargetIDE: {
       default() {
@@ -301,6 +301,9 @@ export default {
         && platforms.length
         && platforms.some(platform => platform.beta),
     pageTitle: ({ title }) => title,
+    pageDescription: ({ abstract, extractFirstParagraphText }) => (
+      abstract ? extractFirstParagraphText(abstract) : null
+    ),
     shouldShowLanguageSwitcher: ({ objcPath, swiftPath }) => objcPath && swiftPath,
     hideSummary: () => getSetting(['features', 'docs', 'summary', 'hide'], false),
   },
@@ -347,9 +350,12 @@ export default {
 
 #main {
   outline-style: none;
-  border-left: 1px solid var(--color-grid);
-  border-right: 1px solid var(--color-grid);
   height: 100%;
+
+  @include with-adjustable-sidebar {
+    border-left: 1px solid var(--color-grid);
+    border-right: 1px solid var(--color-grid);
+  }
 
   @include inTargetIde {
     min-height: 100vh;
@@ -364,9 +370,9 @@ export default {
 }
 
 .container {
-  @include breakpoint-dynamic-sidebar-content;
-  outline-style: none;
   margin-top: $section-spacing-single-side / 2;
+  outline-style: none;
+  @include dynamic-content-container;
 }
 
 .button-cta {

@@ -6,10 +6,11 @@
  *
  * See https://swift.org/LICENSE.txt for license information
  * See https://swift.org/CONTRIBUTORS.txt for Swift project authors
-*/
+ */
 
 import * as dataUtils from 'docc-render/utils/data';
 import { shallowMount } from '@vue/test-utils';
+import { getSetting } from 'docc-render/utils/theme-settings';
 import DocumentationTopic from 'docc-render/views/DocumentationTopic.vue';
 import DocumentationTopicStore from 'docc-render/stores/DocumentationTopicStore';
 import onPageLoadScrollToFragment from 'docc-render/mixins/onPageLoadScrollToFragment';
@@ -23,6 +24,14 @@ jest.mock('docc-render/mixins/onPageLoadScrollToFragment');
 jest.mock('docc-render/utils/FocusTrap');
 jest.mock('docc-render/utils/changeElementVOVisibility');
 jest.mock('docc-render/utils/scroll-lock');
+jest.mock('docc-render/utils/theme-settings');
+
+const defaultGetSetting = (_, fallback) => fallback;
+const getSettingWithNavigatorEnabled = (settingKeyPath, fallback) => (
+  (settingKeyPath.join('.') === 'features.docs.navigator.enable') || fallback
+);
+
+getSetting.mockImplementation(defaultGetSetting);
 
 const TechnologyWithChildren = {
   path: 'path/to/foo',
@@ -130,9 +139,14 @@ describe('DocumentationTopic', () => {
     expect(codeTheme.isEmpty()).toBe(true);
   });
 
-  it('renders the Navigator and AdjustableSidebarWidth', async () => {
+  it('renders the Navigator and AdjustableSidebarWidth when enabled', async () => {
+    getSetting.mockImplementation(getSettingWithNavigatorEnabled);
+
     wrapper.setData({ topicData });
-    expect(wrapper.find(AdjustableSidebarWidth).props()).toEqual({
+    const adjustableWidth = wrapper.find(AdjustableSidebarWidth);
+    expect(adjustableWidth.classes())
+      .toEqual(expect.arrayContaining(['full-width-container', 'topic-wrapper']));
+    expect(adjustableWidth.props()).toEqual({
       openExternally: false,
     });
     const technology = topicData.references['topic://foo'];
@@ -160,14 +174,19 @@ describe('DocumentationTopic', () => {
       references: topicData.references,
       technology: TechnologyWithChildren,
     });
+    // assert the nav is in wide format
+    const nav = wrapper.find(Nav);
+    expect(nav.props('isWideFormat')).toBe(true);
+    getSetting.mockReset();
   });
 
-  it('renders a `Nav` component', () => {
+  it('renders without a sidebar', () => {
+    getSetting.mockImplementation(defaultGetSetting);
+
     wrapper.setData({ topicData });
 
+    // assert the Nav
     const nav = wrapper.find(Nav);
-    expect(nav.exists()).toBe(true);
-
     expect(nav.props()).toEqual({
       parentTopicIdentifiers: topicData.hierarchy.paths[0],
       title: topicData.metadata.title,
@@ -177,15 +196,24 @@ describe('DocumentationTopic', () => {
       references: topicData.references,
       isSymbolBeta: false,
       isSymbolDeprecated: false,
+      isWideFormat: false,
     });
     expect(nav.attributes()).toMatchObject({
       interfacelanguage: 'swift',
       objcpath: 'documentation/objc',
       swiftpath: 'documentation/swift',
     });
+
+    // assert the sidebar
+    expect(wrapper.find(AdjustableSidebarWidth).exists()).toBe(false);
+    expect(wrapper.find(Navigator).exists()).toBe(false);
+    // assert the proper container class is applied
+    expect(wrapper.find('.topic-wrapper').classes()).toContain('static-width-container');
   });
 
   it('handles the `@close`, on Navigator', async () => {
+    getSetting.mockImplementation(getSettingWithNavigatorEnabled);
+
     wrapper.setData({ topicData });
     await flushPromises();
     const nav = wrapper.find(Nav);
@@ -195,6 +223,8 @@ describe('DocumentationTopic', () => {
     await flushPromises();
     wrapper.find(Navigator).vm.$emit('close');
     expect(sidebar.props('openExternally')).toBe(false);
+
+    getSetting.mockReset();
   });
 
   it('renders a `Topic` with `topicData`', () => {

@@ -50,7 +50,7 @@ export default {
 }
 
 .container {
-  @include breakpoint-dynamic-sidebar-content;
+  @include dynamic-content-container;
   padding-bottom: $section-spacing-single-side;
 }
 
