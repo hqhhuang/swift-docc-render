@@ -235,9 +235,9 @@ describe('DocumentationTopic', () => {
 
   it('renders an abstract', () => {
     const hero = wrapper.find(DocumentationHero);
-    const abstract = hero.find(Abstract);
-    expect(abstract.exists()).toBe(true);
-    expect(abstract.props('content')).toEqual(propsData.abstract);
+    const abstractComponent = hero.find(Abstract);
+    expect(abstractComponent.exists()).toBe(true);
+    expect(abstractComponent.props('content')).toEqual(propsData.abstract);
   });
 
   it('renders an abstract, with an empty string inside', () => {
@@ -254,9 +254,9 @@ describe('DocumentationTopic', () => {
       abstract: emptyParagraph,
     });
     const hero = wrapper.find(DocumentationHero);
-    const abstract = hero.find(Abstract);
-    expect(abstract.exists()).toBe(true);
-    expect(abstract.props('content')).toEqual(emptyParagraph);
+    const abstractComponent = hero.find(Abstract);
+    expect(abstractComponent.exists()).toBe(true);
+    expect(abstractComponent.props('content')).toEqual(emptyParagraph);
   });
 
   it('renders a `Description`/`Summary and PrimaryContent`', () => {
