@@ -1,7 +1,7 @@
 <!--
   This source file is part of the Swift.org open source project
 
-  Copyright (c) 2021 Apple Inc. and the Swift project authors
+  Copyright (c) 2022 Apple Inc. and the Swift project authors
   Licensed under Apache License v2.0 with Runtime Library Exception
 
   See https://swift.org/LICENSE.txt for license information
@@ -17,6 +17,7 @@
       :type="type"
       :children="flatChildren"
       :active-path="activePath"
+      :scrollLockID="scrollLockID"
       @close="$emit('close')"
     />
     <div v-else class="loading-placeholder">
@@ -70,6 +71,10 @@ export default {
       type: Object,
       default: () => {},
     },
+    scrollLockID: {
+      type: String,
+      default: '',
+    },
   },
   data() {
     return {
@@ -82,11 +87,18 @@ export default {
   computed: {
     // gets the paths for each parent in the breadcrumbs
     parentTopicReferences({ references, parentTopicIdentifiers }) {
-      return parentTopicIdentifiers.map(identifier => references[identifier].url);
+      return parentTopicIdentifiers.map(identifier => references[identifier]);
     },
     // splits out the top-level technology crumb
-    activePath({ parentTopicReferences, $route }) {
-      return parentTopicReferences.slice(1).concat($route.path);
+    activePath({ parentTopicReferences, $route: { path } }) {
+      // route's path is activePath on root
+      if (!parentTopicReferences.length) return [path];
+      let itemsToSlice = 1;
+      // if the first item is a `technology`, slice off it and the technology itself
+      if (parentTopicReferences[0].kind === 'technologies') {
+        itemsToSlice = 2;
+      }
+      return parentTopicReferences.slice(itemsToSlice).map(r => r.url).concat(path);
     },
     /**
      * Recomputes the list of flat children.
@@ -188,8 +200,9 @@ export default {
 
   @include breakpoint(small) {
     position: static;
-    max-height: 100%;
+    height: 100%;
     border-left: none;
+    transition: none;
   }
 }
 

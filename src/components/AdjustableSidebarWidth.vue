@@ -1,7 +1,7 @@
 <!--
   This source file is part of the Swift.org open source project
 
-  Copyright (c) 2021 Apple Inc. and the Swift project authors
+  Copyright (c) 2022 Apple Inc. and the Swift project authors
   Licensed under Apache License v2.0 with Runtime Library Exception
 
   See https://swift.org/LICENSE.txt for license information
@@ -11,7 +11,6 @@
 <template>
   <div class="adjustable-sidebar-width">
     <div
-      v-if="!hideSidebar"
       ref="sidebar"
       class="sidebar"
       :class="{ 'fully-open': isMaxWidth }"
@@ -22,7 +21,11 @@
         class="aside"
         ref="aside"
       >
-        <slot name="aside" animation-class="aside-animated-child" />
+        <slot
+          name="aside"
+          animationClass="aside-animated-child"
+          :scrollLockID="scrollLockID"
+        />
       </div>
       <div
         class="resize-handle"
@@ -46,11 +49,13 @@ import { waitFrames } from 'docc-render/utils/loading';
 import scrollLock from 'docc-render/utils/scroll-lock';
 import FocusTrap from 'docc-render/utils/FocusTrap';
 import changeElementVOVisibility from 'docc-render/utils/changeElementVOVisibility';
+import throttle from 'docc-render/utils/throttle';
 
 export const STORAGE_KEY = 'sidebar';
 
 // the maximum width, after which the full-width content does not grow
 export const MAX_WIDTH = 1800;
+export const ULTRA_WIDE_DEFAULT = 500;
 
 export const eventsMap = {
   touch: {
@@ -78,8 +83,13 @@ export const maxWidthResponsivePercents = {
   large: 50,
 };
 
+const SCROLL_LOCK_ID = 'sidebar-scroll-lock';
+
 export default {
   name: 'AdjustableSidebarWidth',
+  constants: {
+    SCROLL_LOCK_ID,
+  },
   components: {
     BreakpointEmitter,
   },
@@ -88,25 +98,27 @@ export default {
       type: Boolean,
       default: false,
     },
-    hideSidebar: {
-      type: Boolean,
-      default: false,
-    },
   },
   data() {
+    const windowWidth = window.innerWidth;
+    const breakpoint = BreakpointName.large;
     // get the min width, in case we dont have a previously saved value
-    const fallback = calcWidthPercent(minWidthResponsivePercents[BreakpointName.large]);
-    // computed is not ready yet in `data`.
+    const minWidth = calcWidthPercent(minWidthResponsivePercents[breakpoint]);
+    // calc the maximum width
+    const maxWidth = calcWidthPercent(maxWidthResponsivePercents[breakpoint]);
+    // have a default width for very large screens, or use half of the min and max
+    const defaultWidth = windowWidth >= MAX_WIDTH
+      ? ULTRA_WIDE_DEFAULT
+      : Math.round((minWidth + maxWidth) / 2);
+    // get the already stored data, fallback to a default one.
+    const storedWidth = storage.get(STORAGE_KEY, defaultWidth);
     return {
       isDragging: false,
-      width: Math.min(
-        storage.get(STORAGE_KEY, fallback),
-        // calc the maximum width
-        calcWidthPercent(maxWidthResponsivePercents[BreakpointName.large]),
-      ),
+      // limit the width to a range
+      width: Math.min(Math.max(storedWidth, minWidth), maxWidth),
       isTouch: false,
-      windowWidth: window.innerWidth,
-      breakpoint: BreakpointName.large,
+      windowWidth,
+      breakpoint,
       noTransition: false,
       focusTrapInstance: null,
     };
@@ -124,14 +136,15 @@ export default {
     asideClasses: ({ isDragging, openExternally, noTransition }) => ({
       dragging: isDragging, 'force-open': openExternally, 'no-transition': noTransition,
     }),
+    scrollLockID: () => SCROLL_LOCK_ID,
   },
   async mounted() {
-    window.addEventListener('keydown', this.onEscapeClick);
+    window.addEventListener('keydown', this.onEscapeKeydown);
     window.addEventListener('resize', this.storeWindowSize);
     window.addEventListener('orientationchange', this.storeWindowSize);
 
     this.$once('hook:beforeDestroy', () => {
-      window.removeEventListener('keydown', this.onEscapeClick);
+      window.removeEventListener('keydown', this.onEscapeKeydown);
       window.removeEventListener('resize', this.storeWindowSize);
       window.removeEventListener('orientationchange', this.storeWindowSize);
       if (this.openExternally) {
@@ -180,13 +193,13 @@ export default {
         this.width = this.minWidth;
       }
     }, 50),
-    onEscapeClick({ key }) {
+    onEscapeKeydown({ key }) {
       if (key === 'Escape') this.closeMobileSidebar();
     },
-    async storeWindowSize() {
+    storeWindowSize: throttle(async function storeWindowSize() {
       await this.$nextTick();
       this.windowWidth = window.innerWidth;
-    },
+    }, 100),
     closeMobileSidebar() {
       if (!this.openExternally) return;
       this.$emit('update:openExternally', false);
@@ -240,14 +253,16 @@ export default {
      * Toggles the scroll lock on/off
      */
     toggleScrollLock(lock) {
+      const scrollLockContainer = document.getElementById(this.scrollLockID);
+      if (!scrollLockContainer) return;
       if (lock) {
-        scrollLock.lockScroll(this.$refs.aside);
+        scrollLock.lockScroll(scrollLockContainer);
         // lock focus
         this.focusTrapInstance.start();
         // hide sibling elements from VO
         changeElementVOVisibility.hide(this.$refs.aside);
       } else {
-        scrollLock.unlockScroll(this.$refs.aside);
+        scrollLock.unlockScroll(scrollLockContainer);
         this.focusTrapInstance.stop();
         changeElementVOVisibility.show(this.$refs.aside);
       }
@@ -289,6 +304,7 @@ export default {
     overflow: hidden;
     min-width: 0;
     max-width: 100%;
+    height: 100vh;
     position: fixed;
     top: 0;
     bottom: 0;

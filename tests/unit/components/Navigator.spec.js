@@ -12,11 +12,11 @@ import Navigator from '@/components/Navigator.vue';
 import { shallowMount } from '@vue/test-utils';
 import NavigatorCard from '@/components/Navigator/NavigatorCard.vue';
 import { baseNavStickyAnchorId } from 'docc-render/constants/nav';
-import throttle from '@/utils/throttle';
+import throttle from 'docc-render/utils/throttle';
 import { TopicTypes } from '@/constants/TopicTypes';
 import { createEvent } from '../../../test-utils';
 
-jest.mock('@/utils/throttle', () => jest.fn(v => v));
+jest.mock('docc-render/utils/throttle', () => jest.fn(v => v));
 
 const technology = {
   title: 'FooTechnology',
@@ -63,6 +63,7 @@ const technology = {
 };
 
 const references = {
+  technologies: { kind: 'technologies' },
   root: { url: 'root' },
   first: { url: 'first' },
   second: { url: 'second' },
@@ -88,6 +89,7 @@ const defaultProps = {
   parentTopicIdentifiers,
   technology,
   references,
+  scrollLockID: 'foo',
 };
 
 const fauxAnchor = document.createElement('DIV');
@@ -115,6 +117,7 @@ describe('Navigator', () => {
       type: TopicTypes.module,
       technology: technology.title,
       technologyPath: technology.path,
+      scrollLockID: defaultProps.scrollLockID,
     });
     expect(wrapper.find('.loading-placeholder').exists()).toBe(false);
   });
@@ -143,7 +146,28 @@ describe('Navigator', () => {
       type: TopicTypes.module,
       technology: fallbackTechnology.title,
       technologyPath: fallbackTechnology.url,
+      scrollLockID: defaultProps.scrollLockID,
     });
+  });
+
+  it('strips out possible technology URLs from the activePath', () => {
+    const wrapper = createWrapper({
+      propsData: {
+        parentTopicIdentifiers: ['technologies'].concat(parentTopicIdentifiers),
+      },
+    });
+    expect(wrapper.find(NavigatorCard).props('activePath')).toEqual([
+      references.first.url, references.second.url, mocks.$route.path,
+    ]);
+  });
+
+  it('renders the root path as activePath when there is no parentTopicIdentifiers', () => {
+    const wrapper = createWrapper({
+      propsData: {
+        parentTopicIdentifiers: [],
+      },
+    });
+    expect(wrapper.find(NavigatorCard).props('activePath')).toEqual([mocks.$route.path]);
   });
 
   it('re-emits the `@close` event', () => {

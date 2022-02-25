@@ -1,7 +1,7 @@
 <!--
   This source file is part of the Swift.org open source project
 
-  Copyright (c) 2021 Apple Inc. and the Swift project authors
+  Copyright (c) 2022 Apple Inc. and the Swift project authors
   Licensed under Apache License v2.0 with Runtime Library Exception
 
   See https://swift.org/LICENSE.txt for license information
@@ -65,11 +65,11 @@ const TopicTypeProps = {
   [TopicTypes.class]: { symbol: 'C' },
   [TopicTypes.dictionarySymbol]: { symbol: 'O' },
   [TopicTypes.enum]: { symbol: 'E' },
-  [TopicTypes.extension]: { symbols: ['E', 'x'] },
+  [TopicTypes.extension]: { first: 'E', second: 'x' },
   [TopicTypes.httpRequest]: { symbol: 'E' },
   [TopicTypes.method]: { symbol: 'M' },
   [TopicTypes.macro]: { symbol: '#' },
-  [TopicTypes.protocol]: { symbols: ['P', 'r'] },
+  [TopicTypes.protocol]: { first: 'P', second: 'r' },
   [TopicTypes.property]: { symbol: 'P' },
   [TopicTypes.propertyListKey]: { symbol: 'K' },
   [TopicTypes.struct]: { symbol: 'S' },

@@ -10,16 +10,17 @@
 
 <template>
   <NavBase
+    :breakpoint="isWideFormat ? BreakpointName.small: BreakpointName.medium"
     :hasOverlay="false"
     hasSolidBackground
     :hasNoBorder="hasNoBorder"
     :isDark="isDark"
-    isWideFormat
+    :isWideFormat="isWideFormat"
     hasFullWidthBorder
     class="documentation-nav"
     aria-label="API Reference"
   >
-    <template slot="pre-title">
+    <template slot="pre-title" v-if="isWideFormat">
       <button class="sidenav-toggle" @click.prevent="$emit('toggle-sidenav')">
         <SidenavIcon class="icon-inline sidenav-icon" />
       </button>
@@ -102,6 +103,10 @@ export default {
       type: Object,
       default: () => ({}),
     },
+    isWideFormat: {
+      type: Boolean,
+      default: true,
+    },
   },
   computed: {
     BreakpointName: () => BreakpointName,
@@ -144,6 +149,8 @@ export default {
 <style scoped lang="scss">
 @import 'docc-render/styles/_core.scss';
 
+$sidenav-icon-size: 19px;
+
 // overwrite the typography of menu items outside of breakpoint only
 /deep/ .nav-menu {
   @include font-styles(documentation-nav);
@@ -173,7 +180,15 @@ export default {
 }
 
 .sidenav-icon {
-  width: 19px;
-  height: 19px;
+  width: $sidenav-icon-size;
+  height: $sidenav-icon-size;
+}
+
+// make sure toggle is not visible, from medium up, in default scope.
+// Sidenav is only toggle-able at small, in default scope.
+.sidenav-toggle {
+  @include breakpoints-from(medium) {
+    display: none;
+  }
 }
 </style>

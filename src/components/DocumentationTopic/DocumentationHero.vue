@@ -1,7 +1,7 @@
 <!--
   This source file is part of the Swift.org open source project
 
-  Copyright (c) 2021 Apple Inc. and the Swift project authors
+  Copyright (c) 2022 Apple Inc. and the Swift project authors
   Licensed under Apache License v2.0 with Runtime Library Exception
 
   See https://swift.org/LICENSE.txt for license information
@@ -57,7 +57,7 @@ $doc-hero-icon-color: dark-color(fill-secondary) !default;
   overflow: hidden;
   text-align: center;
   padding-top: rem(40px);
-  padding-bottom: 40px;
+  padding-bottom: 10px;
   position: relative;
 
   // gradient
@@ -120,7 +120,7 @@ $doc-hero-icon-color: dark-color(fill-secondary) !default;
   &__content {
     position: relative;
     z-index: 1;
-    @include breakpoint-dynamic-sidebar-content;
+    @include dynamic-content-container;
   }
 }
 </style>

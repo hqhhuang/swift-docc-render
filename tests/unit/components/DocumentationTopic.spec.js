@@ -15,8 +15,9 @@ import Language from 'docc-render/constants/Language';
 import { TopicTypes } from '@/constants/TopicTypes';
 import DocumentationHero from '@/components/DocumentationTopic/DocumentationHero.vue';
 
-jest.mock('docc-render/utils/theme-settings');
-getSetting.mockImplementation((_, fallback) => fallback);
+jest.mock('docc-render/utils/theme-settings', () => ({
+  getSetting: jest.fn((_, fallback) => fallback),
+}));
 
 const {
   Abstract,
@@ -27,7 +28,6 @@ const {
   DownloadButton,
   TechnologyList,
   LanguageSwitcher,
-  OnThisPageNav,
   PrimaryContent,
   Relationships,
   RequirementMetadata,
@@ -47,6 +47,11 @@ const foo = {
       text: 'foo',
     },
   ],
+};
+
+const abstract = {
+  type: 'text',
+  text: 'Abstract text',
 };
 
 const deprecationSummary = [
@@ -101,7 +106,7 @@ const sampleCodeDownload = {
 };
 
 const propsData = {
-  abstract: [foo],
+  abstract: [abstract],
   conformance: { constraints: [], availabilityPrefx: [] },
   hierarchy: {
     paths: [
@@ -150,9 +155,16 @@ describe('DocumentationTopic', () => {
     wrapper = shallowMount(DocumentationTopic, { propsData });
   });
 
-  it('provides a page title', () => {
-    expect(wrapper.vm.pageTitle).toBe(propsData.title);
-    expect(document.title).toBe('FooKit | Documentation');
+  it('provides a page title based on title prop', () => {
+    const titleText = `${propsData.title} | Documentation`;
+
+    expect(document.title).toBe(titleText);
+  });
+
+  it('provides a page description based on the abstract text', () => {
+    const abstractText = propsData.abstract[0].text;
+
+    expect(document.querySelector('meta[name="description"]').content).toBe(abstractText);
   });
 
   it('provides the languages', () => {
@@ -223,9 +235,9 @@ describe('DocumentationTopic', () => {
 
   it('renders an abstract', () => {
     const hero = wrapper.find(DocumentationHero);
-    const abstract = hero.find(Abstract);
-    expect(abstract.exists()).toBe(true);
-    expect(abstract.props('content')).toEqual(propsData.abstract);
+    const abstractComponent = hero.find(Abstract);
+    expect(abstractComponent.exists()).toBe(true);
+    expect(abstractComponent.props('content')).toEqual(propsData.abstract);
   });
 
   it('renders an abstract, with an empty string inside', () => {
@@ -242,22 +254,19 @@ describe('DocumentationTopic', () => {
       abstract: emptyParagraph,
     });
     const hero = wrapper.find(DocumentationHero);
-    const abstract = hero.find(Abstract);
-    expect(abstract.exists()).toBe(true);
-    expect(abstract.props('content')).toEqual(emptyParagraph);
+    const abstractComponent = hero.find(Abstract);
+    expect(abstractComponent.exists()).toBe(true);
+    expect(abstractComponent.props('content')).toEqual(emptyParagraph);
   });
 
-  it('renders a `.content-grid` with `Description`/`Summary and PrimaryContent` columns', () => {
-    const grid = wrapper.find('.content-grid.container');
-    expect(grid.exists()).toBe(true);
-
-    const description = grid.find(Description);
+  it('renders a `Description`/`Summary and PrimaryContent`', () => {
+    const description = wrapper.find(Description);
     expect(description.exists()).toBe(true);
 
-    const summary = grid.find(Summary);
+    const summary = wrapper.find(Summary);
     expect(summary.exists()).toBe(true);
 
-    expect(grid.find(PrimaryContent).exists()).toBe(true);
+    expect(wrapper.find(PrimaryContent).exists()).toBe(true);
   });
 
   it('renders a `PrimaryContent`', () => {
@@ -315,22 +324,13 @@ describe('DocumentationTopic', () => {
       wrapper.setProps({ isRequirement: true });
       expect(wrapper.contains(RequirementMetadata)).toBe(true);
     });
-  });
-
-  describe('summary column', () => {
-    let summary;
-
-    beforeEach(() => {
-      summary = wrapper.find('main .container').find(Summary);
-    });
 
     it('hides the Summary, if the global settings say so', () => {
       // this should really only mock the resolved value for the specific flag,
       // but this is fine for now
-      getSetting.mockResolvedValue(true);
+      getSetting.mockResolvedValueOnce(true);
       wrapper = shallowMount(DocumentationTopic, { propsData });
       expect(wrapper.find(Summary).exists()).toBe(false);
-      getSetting.mockReset();
     });
 
     it('renders a `Availability` with platforms data', () => {
@@ -347,7 +347,7 @@ describe('DocumentationTopic', () => {
       ];
       wrapper.setProps({ platforms });
 
-      const list = summary.find(Availability);
+      const list = wrapper.find(Availability);
       expect(list.exists()).toBe(true);
       expect(list.props('platforms')).toEqual(platforms);
     });
@@ -356,34 +356,13 @@ describe('DocumentationTopic', () => {
       const modules = ['FooKit', 'BarKit'];
       wrapper.setProps({ modules });
 
-      const list = summary.find(TechnologyList);
+      const list = wrapper.find(TechnologyList);
       expect(list.exists()).toBe(true);
       expect(list.props('technologies')).toEqual(modules);
     });
 
-    it('renders an `OnThisPageNav` with more than 1 section', () => {
-      const onThisPageSections = [
-        { anchor: 'foo', title: 'Foo' },
-        { anchor: 'bar', title: 'Bar' },
-      ];
-      wrapper.setData({ topicState: { onThisPageSections } });
-
-      const nav = summary.find(OnThisPageNav);
-      expect(nav.exists()).toBe(true);
-      expect(nav.props('sections')).toEqual(onThisPageSections);
-    });
-
-    it('does not render `OnThisPage` with 1 or fewer sections', () => {
-      const onThisPageSections = [{ anchor: 'foo', title: 'Foo' }];
-      wrapper.setData({ topicState: { onThisPageSections } });
-      expect(summary.contains(OnThisPageNav)).toBe(false);
-
-      wrapper.setData({ topicState: { onThisPageSections: [] } });
-      expect(summary.contains(OnThisPageNav)).toBe(false);
-    });
-
     it('renders a `LanguageSwitcher`', () => {
-      const switcher = summary.find(LanguageSwitcher);
+      const switcher = wrapper.find(LanguageSwitcher);
       expect(switcher.exists()).toBe(true);
       expect(switcher.props()).toEqual({
         interfaceLanguage: propsData.interfaceLanguage,
@@ -392,7 +371,7 @@ describe('DocumentationTopic', () => {
       });
     });
 
-    it('renders an `TechnologyList` component in the sidebar', () => {
+    it('renders an `TechnologyList` component', () => {
       expect(wrapper.find('.extends-technology').exists()).toBe(false);
       const extendsTechnology = 'FooTechnology';
 

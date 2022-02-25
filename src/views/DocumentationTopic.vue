@@ -23,14 +23,15 @@
         :isSymbolBeta="isSymbolBeta"
         :currentTopicTags="topicProps.tags"
         :references="topicProps.references"
+        :isWideFormat="enableNavigator"
         @toggle-sidenav="isSideNavOpen = !isSideNavOpen"
       />
-      <AdjustableSidebarWidth
-        class="full-width-container"
-        :open-externally.sync="isSideNavOpen"
-        :hide-sidebar="isTargetIDE"
+      <component
+        :is="enableNavigator ? 'AdjustableSidebarWidth' : 'div'"
+        v-bind="sidebarProps"
+        v-on="sidebarListeners"
       >
-        <template #aside>
+        <template #aside="{ scrollLockID }">
           <aside class="doc-topic-aside">
             <NavigatorDataProvider
               :interface-language="topicProps.interfaceLanguage"
@@ -42,29 +43,29 @@
                   :technology="slotProps.technology || technology"
                   :is-fetching="slotProps.isFetching"
                   :references="topicProps.references"
+                  :scrollLockID="scrollLockID"
                   @close="isSideNavOpen = false"
                 />
               </template>
             </NavigatorDataProvider>
           </aside>
         </template>
-        <template #default>
-          <Topic
-            v-bind="topicProps"
-            :key="topicKey"
-            :objcPath="objcPath"
-            :swiftPath="swiftPath"
-            :isSymbolDeprecated="isSymbolDeprecated"
-            :isSymbolBeta="isSymbolBeta"
-          />
-        </template>
-      </AdjustableSidebarWidth>
+        <Topic
+          v-bind="topicProps"
+          :key="topicKey"
+          :objcPath="objcPath"
+          :swiftPath="swiftPath"
+          :isSymbolDeprecated="isSymbolDeprecated"
+          :isSymbolBeta="isSymbolBeta"
+        />
+      </component>
     </template>
   </CodeTheme>
 </template>
 
 <script>
 import { apply } from 'docc-render/utils/json-patch';
+import { getSetting } from 'docc-render/utils/theme-settings';
 import {
   clone,
   fetchDataForRouteEnter,
@@ -225,6 +226,22 @@ export default {
           && platforms.every(platform => platform.deprecatedAt)
         )
       ),
+    // Always disable the navigator for IDE targets. For other targets, allow
+    // this feature to be enabled through the `features.docs.navigator.enable`
+    // setting in `theme-settings.json`
+    enableNavigator: ({ isTargetIDE }) => !isTargetIDE && (
+      getSetting(['features', 'docs', 'navigator', 'enable'], false)
+    ),
+    sidebarProps: ({ isSideNavOpen, enableNavigator }) => (
+      enableNavigator
+        ? { class: 'full-width-container topic-wrapper', openExternally: isSideNavOpen }
+        : { class: 'static-width-container topic-wrapper' }
+    ),
+    sidebarListeners() {
+      return this.enableNavigator ? ({
+        'update:openExternally': (v) => { this.isSideNavOpen = v; },
+      }) : {};
+    },
   },
   methods: {
     applyObjcOverrides() {
@@ -300,7 +317,7 @@ export default {
 .doc-topic-view {
   display: flex;
   flex-flow: column;
-  background: var(--color-fill-secondary);
+  background: var(--colors-text-background, var(--color-text-background));
 }
 
 .doc-topic-aside {
@@ -311,11 +328,12 @@ export default {
   }
 }
 
-.full-width-container {
+.topic-wrapper {
   flex: 1 1 auto;
   width: 100%;
-  background: var(--colors-text-background, var(--color-text-background));
+}
 
+.full-width-container {
   @include inTargetWeb {
     @include breakpoint-full-width-container()
   }
