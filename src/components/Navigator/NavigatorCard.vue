@@ -193,19 +193,17 @@ export default {
     };
   },
   computed: {
+    INDEX_ROOT_KEY: () => INDEX_ROOT_KEY,
     selectedTagsModelValue: {
       get: ({ selectedTags }) => selectedTags.map(tag => FILTER_TAGS_TO_LABELS[tag]),
       set(values) {
         this.selectedTags = values.map(label => FILTER_LABELS_TO_TAGS[label]);
       },
     },
-    filterPattern: ({ debouncedFilter }) => (!debouncedFilter
-      ? undefined
-    INDEX_ROOT_KEY: () => INDEX_ROOT_KEY,
     filterPattern: ({ filter }) => (!filter
       ? null
       // remove the `g` for global, as that causes bugs when matching
-      : new RegExp(safeHighlightPattern(debouncedFilter), 'i')),
+      : new RegExp(safeHighlightPattern(filter), 'i')),
     /**
      * Return the item size for the Scroller element.
      */
