@@ -13,7 +13,7 @@ import { shallowMount } from '@vue/test-utils';
 import { TopicTypes } from '@/constants/TopicTypes';
 import { RecycleScroller } from 'vue-virtual-scroller';
 import 'intersection-observer';
-import { SIDEBAR_ITEM_SIZE } from '@/constants/sidebar';
+import { INDEX_ROOT_KEY, SIDEBAR_ITEM_SIZE } from '@/constants/sidebar';
 import NavigatorCardItem from '@/components/Navigator/NavigatorCardItem.vue';
 import { sessionStorage } from 'docc-render/utils/storage';
 import Reference from '@/components/ContentNode/Reference.vue';
@@ -38,7 +38,7 @@ const root0 = {
   path: '/tutorials/fookit',
   title: 'TopLevel',
   uid: 0,
-  parent: '<root>',
+  parent: INDEX_ROOT_KEY,
   depth: 0,
   index: 0,
   childUIDs: [
@@ -88,7 +88,7 @@ const root1 = {
   path: '/documentation/fookit/gettingstarted',
   title: 'Getting Started',
   uid: 4,
-  parent: '<root>',
+  parent: INDEX_ROOT_KEY,
   depth: 0,
   index: 1,
   childUIDs: [],
@@ -147,6 +147,7 @@ describe('NavigatorCard', () => {
       itemSize: SIDEBAR_ITEM_SIZE,
       keyField: 'uid',
     });
+    expect(wrapper.find(RecycleScroller).attributes('aria-label')).toBe('Sidebar Tree Navigator');
     expect(scroller.attributes('id')).toEqual(defaultProps.scrollLockID);
     // assert CardItem
     const items = wrapper.findAll(NavigatorCardItem);
@@ -154,6 +155,8 @@ describe('NavigatorCard', () => {
     expect(items.at(0).props()).toEqual({
       expanded: true,
       isActive: false,
+      isRendered: false,
+      filterPattern: null,
       isBold: true,
       item: root0,
     });
@@ -218,6 +221,8 @@ describe('NavigatorCard', () => {
       isActive: false,
       isBold: false,
       item,
+      filterPattern: null,
+      isRendered: false,
     });
     unopenedItem.vm.$emit('toggle', item);
     await wrapper.vm.$nextTick();
