@@ -555,10 +555,10 @@ describe('DocumentationTopic', () => {
     wrapper = shallowMount(DocumentationTopic, {
       propsData,
       slots: {
-        'above-title': 'Above Title Content',
+        'above-title': '<div class="above-title">Above Title Content</div>',
       },
     });
-    expect(wrapper.text()).toContain('Above Title Content');
+    expect(wrapper.find(DocumentationHero).contains('.above-title')).toBe(true);
   });
 
   describe('lifecycle hooks', () => {
