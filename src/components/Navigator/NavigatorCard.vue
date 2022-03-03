@@ -12,9 +12,9 @@
   <div class="navigator-card">
     <div class="head-wrapper">
       <button class="close-card-mobile" @click="$emit('close')">
-        <InlineCloseIcon class="icon-inline close-icon" />
+        <SidenavIcon class="icon-inline close-icon" />
       </button>
-      <Reference :url="technologyPath" class="navigator-head">
+      <Reference :url="technologyPath" class="navigator-head" :id="INDEX_ROOT_KEY">
         <NavigatorLeafIcon :type="type" with-colors class="card-icon" />
         <div class="card-link">
           {{ technology }}
@@ -27,13 +27,16 @@
         :id="scrollLockID"
         ref="scroller"
         class="scroller"
+        aria-label="Sidebar Tree Navigator"
         :items="nodesToRender"
         :item-size="itemSize"
         key-field="uid"
-        v-slot="{ item }"
+        v-slot="{ item, active }"
+        @blur.capture.native="handleBlur"
       >
         <NavigatorCardItem
           :item="item"
+          :isRendered="active"
           :filter-pattern="filterPattern"
           :is-active="item.uid === activeUID"
           :is-bold="activePathMap[item.uid]"
@@ -83,7 +86,7 @@ import { INDEX_ROOT_KEY, SIDEBAR_ITEM_SIZE } from 'docc-render/constants/sidebar
 import { safeHighlightPattern } from 'docc-render/utils/search-utils';
 import NavigatorLeafIcon from 'docc-render/components/Navigator/NavigatorLeafIcon.vue';
 import NavigatorCardItem from 'docc-render/components/Navigator/NavigatorCardItem.vue';
-import InlineCloseIcon from 'theme/components/Icons/InlineCloseIcon.vue';
+import SidenavIcon from 'theme/components/Icons/SidenavIcon.vue';
 import FilterIcon from 'theme/components/Icons/FilterIcon.vue';
 import ClearRoundedIcon from 'theme/components/Icons/ClearRoundedIcon.vue';
 import Reference from 'docc-render/components/ContentNode/Reference.vue';
@@ -106,7 +109,7 @@ export default {
   components: {
     ClearRoundedIcon,
     FilterIcon,
-    InlineCloseIcon,
+    SidenavIcon,
     NavigatorCardItem,
     NavigatorLeafIcon,
     RecycleScroller,
@@ -148,8 +151,9 @@ export default {
     };
   },
   computed: {
+    INDEX_ROOT_KEY: () => INDEX_ROOT_KEY,
     filterPattern: ({ filter }) => (!filter
-      ? undefined
+      ? null
       // remove the `g` for global, as that causes bugs when matching
       : new RegExp(safeHighlightPattern(filter), 'i')),
     /**
@@ -472,6 +476,18 @@ export default {
         this.$refs.scroller.scrollToItem(index);
       }
     },
+    handleBlur(event) {
+      // if there is a related target, do nothing
+      if (event.relatedTarget !== null) return;
+      // if there is no related target re-focus the item
+      const { y } = event.target.getBoundingClientRect();
+      if (y < 0) {
+        return;
+      }
+      event.target.focus({
+        preventScroll: true,
+      });
+    },
   },
 };
 </script>
@@ -503,8 +519,13 @@ $navigator-card-vertical-spacing: 8px !default;
       background: var(--color-fill-gray-quaternary);
     }
 
-    @include breakpoint(small) {
+    @include breakpoint(medium, nav) {
       justify-content: center;
+      padding: 14px $navigator-card-horizontal-spacing;
+    }
+
+    @include breakpoint(small, nav) {
+      padding: 12px $navigator-card-horizontal-spacing;
     }
   }
 
@@ -513,7 +534,7 @@ $navigator-card-vertical-spacing: 8px !default;
     height: 19px;
   }
 
-  @include breakpoint(small) {
+  @include breakpoint(medium, nav) {
     .filter-wrapper {
       order: 2;
     }
@@ -532,18 +553,23 @@ $navigator-card-vertical-spacing: 8px !default;
 .close-card-mobile {
   display: none;
   position: absolute;
-  left: 20px;
   top: 50%;
   z-index: 1;
   transform: translateY(-50%);
   color: var(--color-link);
 
-  @include breakpoint(small) {
+  @include breakpoint(medium, nav) {
     display: flex;
+    left: $nav-padding-wide;
+  }
+
+  @include breakpoint(small, nav) {
+    left: $nav-padding-small;
   }
 
   .close-icon {
-    width: 1em;
+    width: 19px;
+    height: 19px;
   }
 }
 
@@ -556,7 +582,7 @@ $navigator-card-vertical-spacing: 8px !default;
   padding-right: 0;
   flex: 1 1 auto;
   min-height: 0;
-  @include breakpoint(small) {
+  @include breakpoint(medium, nav) {
     --card-horizontal-spacing: 20px;
     --card-vertical-spacing: 0px;
   }
@@ -573,7 +599,7 @@ $navigator-card-vertical-spacing: 8px !default;
   padding: 14px 30px;
   border-top: 1px solid var(--color-grid);
 
-  @include breakpoint(small) {
+  @include breakpoint(medium, nav) {
     border: none;
     padding: 10px 20px;
   }
