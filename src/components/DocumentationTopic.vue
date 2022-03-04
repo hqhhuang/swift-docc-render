@@ -17,8 +17,8 @@
         <Abstract v-if="abstract" :content="abstract" />
         <Availability v-if="platforms" :platforms="platforms" />
       </DocumentationHero>
-        <Summary v-if="!hideSummary">
-          <TechnologyList v-if="modules" :technologies="modules" />
+        <Summary v-if="showSummary">
+          <TechnologyList v-if="showModules" :technologies="modules" />
           <TechnologyList
             v-if="extendsTechnology"
             class="extends-technology"
@@ -60,6 +60,7 @@
         :sections="topicSections"
         :isSymbolDeprecated="isSymbolDeprecated"
         :isSymbolBeta="isSymbolBeta"
+        :languagePaths="languagePaths"
       />
       <DefaultImplementations
         v-if="defaultImplementationsSections"
@@ -222,9 +223,9 @@ export default {
       type: Array,
       required: false,
     },
-    variants: {
-      type: Array,
-      default: () => ([]),
+    languagePaths: {
+      type: Object,
+      default: () => ({}),
     },
     extendsTechnology: {
       type: String,
@@ -240,6 +241,10 @@ export default {
     swiftPath: {
       type: String,
       required: false,
+    },
+    rootPath: {
+      type: String,
+      required: true,
     },
     isSymbolDeprecated: {
       type: Boolean,
@@ -285,14 +290,6 @@ export default {
       ({ primaryContentSections = [], abstract = [] }) => primaryContentSections.filter(section => (
         section.kind === PrimaryContent.constants.SectionKind.content
       )).length > 0 || abstract.length > 0,
-    // Use `variants` data to build a map of paths associated with each unique
-    // `interfaceLanguage` trait.
-    languagePaths: ({ variants }) => variants.reduce((memo, variant) => (
-      variant.traits.reduce((_memo, trait) => (!trait.interfaceLanguage ? _memo : ({
-        ..._memo,
-        [trait.interfaceLanguage]: (_memo[trait.interfaceLanguage] || []).concat(variant.paths),
-      })), memo)
-    ), {}),
     onThisPageSections() {
       return this.topicState.onThisPageSections;
     },
@@ -305,7 +302,19 @@ export default {
       abstract ? extractFirstParagraphText(abstract) : null
     ),
     shouldShowLanguageSwitcher: ({ objcPath, swiftPath }) => objcPath && swiftPath,
-    hideSummary: () => getSetting(['features', 'docs', 'summary', 'hide'], false),
+    showModules() {
+      // show modules if page
+      // 1. belongs to multiple technologies
+      // 2. if name doesn't match root of page
+      // const root = this.identifier.split('/documentation/')[-1].split('/')[0];
+      return (this.modules && this.modules.length > 1)
+        ? true : (this.modules && this.rootPath !== this.modules[0].name);
+    },
+    showSummary({ shouldShowLanguageSwitcher, showmodules }) {
+      // get setting
+      const hideSummary = getSetting(['features', 'docs', 'summary', 'hide'], false);
+      return !hideSummary && (shouldShowLanguageSwitcher || showmodules);
+    },
   },
   methods: {
     normalizePath(path) {
@@ -333,7 +342,6 @@ export default {
         });
       });
     }
-
     this.store.reset();
   },
 };

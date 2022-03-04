@@ -65,6 +65,7 @@ const topicData = {
     interfaceLanguage: 'swift',
     url: 'doc://com.example.documentation/documentation/fookit',
   },
+  rootPath: 'FooTechnology',
   metadata: {
     roleHeading: 'Thing',
     role: 'article',
@@ -280,6 +281,7 @@ describe('DocumentationTopic', () => {
         occ: ['documentation/objc'],
         swift: ['documentation/swift'],
       },
+      rootPath: topicData.rootPath,
     });
   });
 

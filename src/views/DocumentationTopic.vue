@@ -58,6 +58,7 @@
           :isSymbolDeprecated="isSymbolDeprecated"
           :isSymbolBeta="isSymbolBeta"
           :languagePaths="languagePaths"
+          :rootPath="technology.title"
         />
       </component>
     </template>

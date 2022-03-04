@@ -107,7 +107,7 @@ const sampleCodeDownload = {
 
 const propsData = {
   abstract: [abstract],
-  conformance: { constraints: [], availabilityPrefx: [] },
+  conformance: { constraints: [], availabilityPrefix: [] },
   hierarchy: {
     paths: [
       [
@@ -117,6 +117,7 @@ const propsData = {
     ],
   },
   identifier: 'doc://fookit',
+  rootPath: 'fookit',
   interfaceLanguage: 'swift',
   symbolKind: TopicTypes.module,
   objcPath: 'documentation/objc',
@@ -325,6 +326,13 @@ describe('DocumentationTopic', () => {
       getSetting.mockResolvedValueOnce(true);
       wrapper = shallowMount(DocumentationTopic, { propsData });
       expect(wrapper.find(Summary).exists()).toBe(false);
+    });
+
+    it('renders the Summary, if more than 1 module', () => {
+      const modules = ['FooKit', 'BarKit'];
+      wrapper.setProps({ modules });
+      // wrapper = shallowMount(DocumentationTopic, { propsData });
+      expect(wrapper.find(Summary).exists()).toBe(true);
     });
 
     it('renders a `Availability` with platforms data', () => {
