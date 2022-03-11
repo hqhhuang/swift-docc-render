@@ -211,6 +211,12 @@ describe('DocumentationTopic', () => {
     expect(hero.props()).toEqual({ type: propsData.symbolKind, enhanceBackground: true });
   });
 
+  it('renders primary content without a border for non-symbol pages', () => {
+    const primaryContent = wrapper.find(PrimaryContent);
+    expect(primaryContent.exists()).toBe(true);
+    expect(primaryContent.classes('with-border')).toBe(false);
+  });
+
   it('renders a `DocumentationHero`, enabled, with a the `role`, if no symbolKind', () => {
     wrapper.setProps({
       role: TopicTypes.article,
@@ -235,6 +241,13 @@ describe('DocumentationTopic', () => {
     });
     const hero = wrapper.find(DocumentationHero);
     expect(hero.props()).toEqual({ type: TopicTypes.protocol, enhanceBackground: false });
+  });
+
+  it('render primary content with a border if symbol page', () => {
+    wrapper.setProps({ symbolKind: 'protocol' });
+    const primaryContent = wrapper.find(PrimaryContent);
+    expect(primaryContent.exists()).toBe(true);
+    expect(primaryContent.classes('with-border')).toBe(true);
   });
 
   it('renders a `Title`', () => {
