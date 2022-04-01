@@ -16,14 +16,20 @@
     }]"
     :style="styles"
   >
-    <NavigatorLeafIcon
-      v-if="enhanceBackground" :type="type"
-      key="first" class="background-icon first-icon" with-colors
-    />
-    <NavigatorLeafIcon
-      v-if="enhanceBackground" :type="type"
-      key="second" class="background-icon second-icon" with-colors
-    />
+    <div class="icon">
+      <NavigatorLeafIcon
+        v-if="enhanceBackground" :type="type"
+        key="first" class="background-icon first-icon" with-colors
+      />
+      <NavigatorLeafIcon
+        v-if="enhanceBackground" :type="type"
+        key="second" class="background-icon second-icon" with-colors
+      />
+      <NavigatorLeafIcon
+        v-if="enhanceBackground" :type="type"
+        key="third" class="background-icon third-icon" with-colors
+      />
+    </div>
     <div class="documentation-hero__content">
       <slot />
     </div>
@@ -66,14 +72,14 @@ $doc-hero-gradient-background: dark-color(fill-tertiary) !default;
 $doc-hero-overlay-background: transparent !default;
 $doc-hero-icon-opacity: 1 !default;
 $doc-hero-icon-color: dark-color(fill-secondary) !default;
+$doc-hero-icon-spacing: 25px;
+$doc-hero-icon-dimension: 250px;
 
 .documentation-hero {
   background: dark-color(fill);
   color: dark-color(figure-gray);
   overflow: hidden;
   text-align: left;
-  padding-top: rem(40px);
-  padding-bottom: 40px;
   position: relative;
 
   // gradient
@@ -100,12 +106,16 @@ $doc-hero-icon-color: dark-color(fill-secondary) !default;
     top: 0;
   }
 
+  .icon {
+    margin-top: 10px;
+  }
+
   .background-icon {
     color: $doc-hero-icon-color;
     position: absolute;
     display: block;
-    width: 250px;
-    height: 250px;
+    width: $doc-hero-icon-dimension;
+    height: $doc-hero-icon-dimension;
     opacity: $doc-hero-icon-opacity;
 
     /deep/ svg {
@@ -114,26 +124,58 @@ $doc-hero-icon-color: dark-color(fill-secondary) !default;
     }
 
     &.first-icon {
-      left: 0;
-      top: 100%;
-      transform: translateY(-50%);
+      // center icon vertically in hero
+      top: 50%;
+      transform: translate(250%, -50%);
+
       @include breakpoint(small) {
-        left: -15%;
-        top: 80%;
+        // only display half of the icon
+        right: - $doc-hero-icon-dimension / 2;
+        transform: translateY(-50%);
+      }
+
+      @include breakpoints-from(large) {
+        right: $doc-hero-icon-dimension;
+        transform: translateY(-50%);
       }
     }
 
     &.second-icon {
-      right: 0;
-      top: -10%;
-      transform: translateY(-50%);
+      bottom: 50%;
+      transform: translateX(350%);
+      margin-left: $doc-hero-icon-spacing;
+      margin-bottom: $doc-hero-icon-spacing / 2;
+
       @include breakpoint(small) {
         display: none;
+      }
+
+      @include breakpoints-from(large) {
+        right: 0px;
+        transform: none;
+      }
+    }
+
+    &.third-icon {
+      top: 50%;
+      transform: translateX(350%);
+      margin-left: $doc-hero-icon-spacing;
+      margin-top: $doc-hero-icon-spacing / 2;
+
+      @include breakpoint(small) {
+        display: none;
+      }
+
+      @include breakpoints-from(large) {
+        right: 0px;
+        transform: none;
       }
     }
   }
 
   &__content {
+    padding-top: rem(40px);
+    padding-bottom: 40px;
     position: relative;
     z-index: 1;
     @include dynamic-content-container;
