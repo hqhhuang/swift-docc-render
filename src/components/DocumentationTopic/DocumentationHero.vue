@@ -134,10 +134,10 @@ $doc-hero-icon-dimension: 250px;
         transform: translateY(-50%);
       }
 
-      @include breakpoints-from(large) {
-        right: $doc-hero-icon-dimension;
-        transform: translateY(-50%);
-      }
+      // @include breakpoints-from(xlarge) {
+      //   right: $doc-hero-icon-dimension;
+      //   transform: translateY(-50%);
+      // }
     }
 
     &.second-icon {
@@ -150,10 +150,10 @@ $doc-hero-icon-dimension: 250px;
         display: none;
       }
 
-      @include breakpoints-from(large) {
-        right: 0px;
-        transform: none;
-      }
+      // @include breakpoints-from(xlarge) {
+      //   right: 0px;
+      //   transform: none;
+      // }
     }
 
     &.third-icon {
@@ -166,10 +166,10 @@ $doc-hero-icon-dimension: 250px;
         display: none;
       }
 
-      @include breakpoints-from(large) {
-        right: 0px;
-        transform: none;
-      }
+      // @include breakpoints-from(xlarge) {
+      //   right: 0px;
+      //   transform: none;
+      // }
     }
   }
 
