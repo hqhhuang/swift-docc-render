@@ -29,6 +29,10 @@
         v-if="enhanceBackground" :type="type"
         key="third" class="background-icon third-icon" with-colors
       />
+      <NavigatorLeafIcon
+        v-if="enhanceBackground" :type="type"
+        key="fourth" class="background-icon fourth-icon" with-colors
+      />
     </div>
     <div class="documentation-hero__content">
       <slot />
@@ -128,6 +132,11 @@ $doc-hero-icon-dimension: 250px;
       top: 50%;
       transform: translate(250%, -50%);
 
+      @include breakpoint(medium) {
+        right: 0;
+        transform: translateY(calc(-50% + 10px));
+      }
+
       @include breakpoint(small) {
         // only display half of the icon
         right: - $doc-hero-icon-dimension / 2;
@@ -146,7 +155,7 @@ $doc-hero-icon-dimension: 250px;
       margin-left: $doc-hero-icon-spacing;
       margin-bottom: $doc-hero-icon-spacing / 2;
 
-      @include breakpoint(small) {
+      @include breakpoint(medium) {
         display: none;
       }
 
@@ -162,7 +171,7 @@ $doc-hero-icon-dimension: 250px;
       margin-left: $doc-hero-icon-spacing;
       margin-top: $doc-hero-icon-spacing / 2;
 
-      @include breakpoint(small) {
+      @include breakpoint(medium) {
         display: none;
       }
 
@@ -170,6 +179,16 @@ $doc-hero-icon-dimension: 250px;
       //   right: 0px;
       //   transform: none;
       // }
+    }
+
+    &.fourth-icon {
+      top: 50%;
+      transform: translate(450%, -50%);
+      margin-left: $doc-hero-icon-spacing;
+
+      @include breakpoint(medium) {
+        display: none;
+      }
     }
   }
 
