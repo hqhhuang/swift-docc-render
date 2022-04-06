@@ -17,6 +17,7 @@ $breakpoint-attributes: (
       min-width: 1800px
     ),
     large: (
+      max-width: 1727px,
       min-width: 1069px,
       content-width: 980px,
     ),
@@ -99,7 +100,7 @@ $breakpoint-attributes: (
 ///     }
 ///   }
 ///   // .no-large-query-example {
-///   //   display: noen;
+///   //   display: none;
 ///   // }
 ///
 @mixin breakpoint($name, $scope: default) {

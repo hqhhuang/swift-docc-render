@@ -55,7 +55,7 @@
   "features": {
     "docs": {
       "navigator": {
-        "enable": false
+        "enable": true
       }
     }
   }

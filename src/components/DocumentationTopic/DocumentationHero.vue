@@ -16,7 +16,7 @@
     }]"
     :style="styles"
   >
-    <div class="icon">
+    <div class="icons">
       <NavigatorLeafIcon
         v-if="enhanceBackground" :type="type"
         key="first" class="background-icon first-icon" with-colors
@@ -74,6 +74,7 @@ $doc-hero-icon-opacity: 1 !default;
 $doc-hero-icon-color: dark-color(fill-secondary) !default;
 $doc-hero-icon-spacing: 25px;
 $doc-hero-icon-dimension: 250px;
+$doc-hero-icon-box-dimension: $doc-hero-icon-dimension * 2 + $doc-hero-icon-spacing;
 
 .documentation-hero {
   background: dark-color(fill);
@@ -106,8 +107,22 @@ $doc-hero-icon-dimension: 250px;
     top: 0;
   }
 
-  .icon {
+  .icons {
     margin-top: 10px;
+    position: absolute;
+    width: $doc-hero-icon-box-dimension;
+    height: $doc-hero-icon-box-dimension;
+    top: 50%;
+    left: 0%;
+    transform: translate(210%, calc(-50% + 10px));
+
+    @include breakpoint(large) {
+      position: unset;
+      width: unset;
+      height: unset;
+      top: unset;
+      transform: none;
+    }
   }
 
   .background-icon {
@@ -125,51 +140,44 @@ $doc-hero-icon-dimension: 250px;
 
     &.first-icon {
       // center icon vertically in hero
-      top: 50%;
-      transform: translate(250%, -50%);
+      top: 25%;
+      margin-right: $doc-hero-icon-spacing;
+
+      @include breakpoint(large) {
+        top: 50%;
+        right: 0;
+        transform: translateY(calc(-50% + 10px));
+        // margin-right: $doc-hero-icon-spacing;
+      }
 
       @include breakpoint(small) {
         // only display half of the icon
         right: - $doc-hero-icon-dimension / 2;
-        transform: translateY(-50%);
+        transform: translateY(calc(-50% + 10px));
+        // margin-right: 0;
       }
-
-      // @include breakpoints-from(xlarge) {
-      //   right: $doc-hero-icon-dimension;
-      //   transform: translateY(-50%);
-      // }
     }
 
     &.second-icon {
-      bottom: 50%;
-      transform: translateX(350%);
-      margin-left: $doc-hero-icon-spacing;
-      margin-bottom: $doc-hero-icon-spacing / 2;
+      color:pink;
+      top: 0%;
+      right: 0%;
+      display: block;
 
-      @include breakpoint(small) {
+      @include breakpoint(large) {
         display: none;
       }
-
-      // @include breakpoints-from(xlarge) {
-      //   right: 0px;
-      //   transform: none;
-      // }
     }
 
     &.third-icon {
-      top: 50%;
-      transform: translateX(350%);
-      margin-left: $doc-hero-icon-spacing;
-      margin-top: $doc-hero-icon-spacing / 2;
+      color: pink;
+      bottom: 0%;
+      right: 0%;
+      display: block;
 
-      @include breakpoint(small) {
+      @include breakpoint(large) {
         display: none;
       }
-
-      // @include breakpoints-from(xlarge) {
-      //   right: 0px;
-      //   transform: none;
-      // }
     }
   }
 
