@@ -9,7 +9,8 @@
 -->
 
 <script>
-import { fetchIndexPathsData } from 'docc-render/utils/data';
+import { fetchIndexPathsData, fetchMetadatav2 } from 'docc-render/utils/data';
+import { fetchMetafromTheme } from 'docc-render/utils/theme-settings';
 import Language from 'docc-render/constants/Language';
 import { patchToVersion } from 'docc-render/utils/version-patch';
 import DocumentationTopicStore from 'docc-render/stores/DocumentationTopicStore';
@@ -44,6 +45,8 @@ export default {
       },
       diffs: null,
       allIndexData: null,
+      metadata: null,
+      metadatainTheme: null,
     };
   },
   computed: {
@@ -84,6 +87,10 @@ export default {
       try {
         this.isFetching = true;
         this.allIndexData = await fetchIndexPathsData();
+        console.log('fetch');
+        this.metadata = await fetchMetadatav2();
+        console.log('metadata', this.metadata);
+        this.metadatainTheme = fetchMetafromTheme();
         // {interfaceLanguages} = this.versionedNavigationIndex
         // TODO: Why did Dobri use a freze?
         // this.navigationIndex = Object.freeze(interfaceLanguages);

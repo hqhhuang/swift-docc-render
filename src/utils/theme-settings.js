@@ -33,4 +33,11 @@ export async function fetchThemeSettings() {
     .catch(() => ({}));
 }
 
+export async function fetchMetafromTheme() {
+  const url = new URL(`${baseUrl}metadata.json`, window.location.href);
+  return fetch(url.href)
+    .then(r => r.json())
+    .catch(() => ({}));
+}
+
 export const getSetting = (path, fallback) => get(themeSettingsState, path, fallback);

@@ -50,5 +50,8 @@ function patchToVersion(displayName, data) {
   return patchJSON;
 }
 
+// function createDiff(newData, oldData){
+
+// }
 // eslint-disable-next-line import/prefer-default-export
 export { dataHasVersion, patchToVersion, initializeVersionList };
