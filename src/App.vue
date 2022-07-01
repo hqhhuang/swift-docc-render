@@ -36,7 +36,12 @@ import ColorScheme from 'docc-render/constants/ColorScheme';
 import Footer from 'docc-render/components/Footer.vue';
 import InitialLoadingPlaceholder from 'docc-render/components/InitialLoadingPlaceholder.vue';
 import { baseNavStickyAnchorId } from 'docc-render/constants/nav';
-import { fetchThemeSettings, themeSettingsState } from 'docc-render/utils/theme-settings';
+import {
+  fetchThemeSettings,
+  themeSettingsState,
+  fetchMetafromTheme,
+  metadataState,
+} from 'docc-render/utils/theme-settings';
 import { objectToCustomProperties } from 'docc-render/utils/themes';
 
 export default {
@@ -57,6 +62,7 @@ export default {
       fromKeyboard: false,
       isTargetIDE: process.env.VUE_APP_TARGET === 'ide',
       themeSettings: themeSettingsState,
+      metadata: metadataState,
       baseNavStickyAnchorId,
     };
   },
@@ -105,6 +111,8 @@ export default {
       // use Object.assign to persist the reactivity in store
       Object.assign(this.themeSettings, await fetchThemeSettings());
     }
+
+    Object.assign(this.metadata, await fetchMetafromTheme());
 
     // Ensure that the preferred color scheme is properly synced between the
     // persisted settings and the application store state, even when the page

@@ -28,6 +28,8 @@ export const { baseUrl } = window;
  */
 export async function fetchThemeSettings() {
   const url = new URL(`${baseUrl}theme-settings.json`, window.location.href);
+  console.log('fetch theme setting', url.href);
+
   return fetch(url.href)
     .then(r => r.json())
     .catch(() => ({}));
@@ -35,9 +37,16 @@ export async function fetchThemeSettings() {
 
 export async function fetchMetafromTheme() {
   const url = new URL(`${baseUrl}metadata.json`, window.location.href);
+  console.log('fetch meta from theme', url.href);
   return fetch(url.href)
     .then(r => r.json())
     .catch(() => ({}));
 }
+export const metadataState = {
+  bundleDisplayName: '',
+  bundleIdentifier: '',
+  schemaVersion: {},
+};
 
 export const getSetting = (path, fallback) => get(themeSettingsState, path, fallback);
+export const getMetaData = (path, fallback) => get(metadataState, path, fallback);

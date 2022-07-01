@@ -87,9 +87,7 @@ export default {
       try {
         this.isFetching = true;
         this.allIndexData = await fetchIndexPathsData();
-        console.log('fetch');
         this.metadata = await fetchMetadatav2();
-        console.log('metadata', this.metadata);
         this.metadatainTheme = fetchMetafromTheme();
         // {interfaceLanguages} = this.versionedNavigationIndex
         // TODO: Why did Dobri use a freze?

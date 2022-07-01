@@ -133,15 +133,13 @@ export function clone(jsonObject) {
 
 export async function fetchIndexPathsData() {
   const path = new URL(`${pathJoin([baseUrl, 'index/index.json'])}`, window.location.href);
-  console.log(path);
   return fetchData(path);
 }
 // TODO: abstract this funciton
 
 export async function fetchMetadata() {
-  console.log('enter');
   const path = new URL(`${pathJoin([baseUrl, '/metadata.json'])}`, window.location.href);
-  console.log(path);
+  console.log('fetchMetadata', path);
   return fetchData(path);
 }
 
