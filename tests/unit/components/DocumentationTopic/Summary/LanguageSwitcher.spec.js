@@ -24,8 +24,8 @@ describe('LanguageSwitcher', () => {
 
   const propsData = {
     interfaceLanguage: Language.swift.key.api,
-    objcPath: 'documentation/foo',
-    swiftPath: 'documentation/foo',
+    objcPath: '/documentation/foo?language=objc',
+    swiftPath: '/documentation/foo',
   };
 
   const mocks = {
@@ -86,7 +86,7 @@ describe('LanguageSwitcher', () => {
     wrapper.setProps({
       ...propsData,
       interfaceLanguage: Language.objectiveC.key.api,
-      objcPath: 'documentation/bar',
+      objcPath: '/documentation/bar',
     });
 
     const links = wrapper.findAll(LanguageSwitcherLink);

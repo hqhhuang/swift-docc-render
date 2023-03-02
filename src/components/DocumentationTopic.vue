@@ -29,8 +29,8 @@
         <LanguageSwitcher
           v-if="shouldShowLanguageSwitcher"
           :interfaceLanguage="interfaceLanguage"
-          :objcPath="objcPath"
-          :swiftPath="swiftPath"
+          :objcPath="normalizedObjcPath"
+          :swiftPath="normalizedSwiftPath"
         />
         <Title
           :eyebrow="enableMinimized ? null : roleHeading"

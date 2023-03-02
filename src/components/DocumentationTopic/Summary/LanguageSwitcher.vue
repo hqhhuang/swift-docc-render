@@ -81,28 +81,24 @@ export default {
     // current URL.
     objc: ({
       interfaceLanguage,
-      normalizePath,
       objcPath,
       $route: { query },
     }) => ({
       ...Language.objectiveC,
       active: Language.objectiveC.key.api === interfaceLanguage,
-      url: buildUrl(normalizePath(objcPath), {
+      url: buildUrl(objcPath, {
         ...query,
-        language: Language.objectiveC.key.url,
       }),
     }),
     swift: ({
       interfaceLanguage,
-      normalizePath,
       swiftPath,
       $route: { query },
     }) => ({
       ...Language.swift,
       active: Language.swift.key.api === interfaceLanguage,
-      url: buildUrl(normalizePath(swiftPath), {
+      url: buildUrl(swiftPath, {
         ...query,
-        language: undefined,
       }),
     }),
   },
@@ -113,11 +109,6 @@ export default {
       }
 
       this.$router.push(language.url);
-    },
-    normalizePath(path) {
-      // Sometimes `paths` data from `variants` are prefixed with a leading
-      // slash and sometimes they aren't
-      return path.startsWith('/') ? path : `/${path}`;
     },
   },
 };

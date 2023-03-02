@@ -519,20 +519,40 @@ describe('DocumentationTopic', () => {
     expect(docContent.classes()).toContain('no-primary-content');
   });
 
-  it('renders a `LanguageSwitcher` if TargetIDE', () => {
+  it('renders a `LanguageSwitcher` with correct path if TargetIDE', () => {
     const provide = { isTargetIDE: true };
     wrapper = shallowMount(DocumentationTopic, { propsData, provide });
     const switcher = wrapper.find(LanguageSwitcher);
     expect(switcher.exists()).toBe(true);
     expect(switcher.props()).toEqual({
       interfaceLanguage: propsData.interfaceLanguage,
-      objcPath: propsData.languagePaths.occ[0],
-      swiftPath: propsData.languagePaths.swift[0],
+      objcPath: '/documentation/objc?language=objc',
+      swiftPath: '/documentation/swift',
     });
 
     // Minimized view should not render LanguageSwitcher
     wrapper.setProps({ enableMinimized: true });
     expect(wrapper.find(LanguageSwitcher).exists()).toBe(false);
+  });
+
+  it('provides correct Swift and Objc Path for `LanguageSwitcher` when they differ', () => {
+    const provide = { isTargetIDE: true };
+    wrapper = shallowMount(DocumentationTopic, {
+      propsData: {
+        ...propsData,
+        interfaceLanguage: Language.objectiveC.key.api,
+        objcPath: 'documentation/objc',
+        swiftPath: 'documentation/swift',
+      },
+      provide,
+    });
+    const switcher = wrapper.find(LanguageSwitcher);
+    expect(switcher.exists()).toBe(true);
+    expect(switcher.props()).toEqual({
+      interfaceLanguage: Language.objectiveC.key.api,
+      objcPath: '/documentation/objc?language=objc',
+      swiftPath: '/documentation/swift',
+    });
   });
 
   it('renders `Topics` if there are topic sections, passing the `topicSectionsStyle` over', () => {
