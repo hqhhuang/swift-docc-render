@@ -23,9 +23,9 @@ export default {
     ...pageSectionsState,
     references: {},
   },
-  reset() {
+  reset(references = {}) {
     this.state.preferredLanguage = Settings.preferredLanguage;
-    this.state.references = {};
+    this.setReferences(references);
     this.resetApiChanges();
   },
   setPreferredLanguage(language) {
@@ -36,7 +36,8 @@ export default {
     this.state.contentWidth = width;
   },
   setReferences(references) {
-    this.state.references = references;
+    const currentReference = this.state.references;
+    this.state.references = Object.assign(currentReference, references);
   },
   ...changesActions,
   ...pageSectionsActions,

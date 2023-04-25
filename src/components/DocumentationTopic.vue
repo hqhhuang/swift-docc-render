@@ -188,6 +188,7 @@ export default {
       default() {
         return {
           reset() {},
+          setReferences() {},
           state: {},
         };
       },
@@ -624,7 +625,13 @@ export default {
       });
     }
 
-    this.store.reset();
+    this.store.reset(this.references);
+  },
+  watch: {
+    references() {
+      // watch for `reference` prop change in Quick Nav
+      this.store.setReferences(this.references);
+    },
   },
 };
 </script>
