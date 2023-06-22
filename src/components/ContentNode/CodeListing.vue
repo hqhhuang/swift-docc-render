@@ -131,8 +131,11 @@ export default {
 
 .code-line-container {
   display: inline-block;
-  width: 100%;
   box-sizing: border-box;
+
+  &.highlighted {
+    width: 100%;
+  }
 }
 
 .code-number {
