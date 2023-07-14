@@ -167,7 +167,7 @@ import Abstract from './DocumentationTopic/Description/Abstract.vue';
 import ContentNode from './DocumentationTopic/ContentNode.vue';
 import CallToActionButton from './CallToActionButton.vue';
 import DefaultImplementations from './DocumentationTopic/DefaultImplementations.vue';
-import PrimaryContent from './DocumentationTopic/PrimaryContent.vue';
+import PrimaryContent from 'theme/components/DocumentationTopic/PrimaryContent.vue';
 import Relationships from './DocumentationTopic/Relationships.vue';
 import RequirementMetadata from './DocumentationTopic/Description/RequirementMetadata.vue';
 import Availability from './DocumentationTopic/Summary/Availability.vue';
