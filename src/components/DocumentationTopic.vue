@@ -160,6 +160,7 @@ import DocumentationHero from 'docc-render/components/DocumentationTopic/Documen
 import WordBreak from 'docc-render/components/WordBreak.vue';
 import { TopicSectionsStyle } from 'docc-render/constants/TopicSectionsStyle';
 import OnThisPageNav from 'theme/components/OnThisPageNav.vue';
+import PrimaryContent from 'theme/components/DocumentationTopic/PrimaryContent.vue';
 import { SectionKind } from 'docc-render/constants/PrimaryContentSection';
 import Declaration from 'docc-render/components/DocumentationTopic/PrimaryContent/Declaration.vue';
 import { StandardColors } from 'docc-render/constants/StandardColors';
@@ -167,7 +168,6 @@ import Abstract from './DocumentationTopic/Description/Abstract.vue';
 import ContentNode from './DocumentationTopic/ContentNode.vue';
 import CallToActionButton from './CallToActionButton.vue';
 import DefaultImplementations from './DocumentationTopic/DefaultImplementations.vue';
-import PrimaryContent from 'theme/components/DocumentationTopic/PrimaryContent.vue';
 import Relationships from './DocumentationTopic/Relationships.vue';
 import RequirementMetadata from './DocumentationTopic/Description/RequirementMetadata.vue';
 import Availability from './DocumentationTopic/Summary/Availability.vue';

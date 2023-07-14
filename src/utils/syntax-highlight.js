@@ -240,7 +240,9 @@ export function highlight(code, language) {
   // doesn't know about
   const normalizedLang = getLanguageByAlias(language);
   if (!normalizedLang) {
-    return hljs.highlightAuto(code).value;
+    const highlighted = hljs.highlightAuto(code);
+    console.log(highlighted.language);
+    return highlighted.value;
   }
   if (!hljs.getLanguage(normalizedLang)) {
     throw new Error(`Unsupported language for syntax highlighting: ${language}`);
