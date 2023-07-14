@@ -71,7 +71,10 @@ async function importHighlightFileForLanguage(language) {
   // dependencies on other languages, but this is no longer the case with v11 of
   // highlight.js, so this could be refactored in the future to eliminate this
   // array entirely
-  const files = [language];
+
+  // if no language is specified, import all supported languages
+  const files = language ? [language] : Array.from(SupportedLanguagesSet);
+
   try {
     // use a reduce to sequentially resolve promises, in the order given.
     await files.reduce(async (previousPromise, file) => {
@@ -139,8 +142,8 @@ function memoizedGetLanguageByAlias(language) {
 export const registerHighlightLanguage = async (originalLanguage) => {
   // normalize the language parameter
   const language = memoizedGetLanguageByAlias(originalLanguage);
-  // if we dont support the language, or its already registered, bail silently
-  if (!language || hljs.listLanguages().includes(language)) {
+  // if already registered, bail silently
+  if (hljs.listLanguages().includes(language)) {
     return false;
   }
   // import the file dynamically. Only import the files we support.
@@ -236,6 +239,9 @@ export function highlight(code, language) {
   // normalize the language name in case it is a custom alias that highlight.js
   // doesn't know about
   const normalizedLang = getLanguageByAlias(language);
+  if (!normalizedLang) {
+    return hljs.highlightAuto(code).value;
+  }
   if (!hljs.getLanguage(normalizedLang)) {
     throw new Error(`Unsupported language for syntax highlighting: ${language}`);
   }
