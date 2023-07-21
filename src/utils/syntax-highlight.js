@@ -73,7 +73,15 @@ async function importHighlightFileForLanguage(language) {
   // array entirely
 
   // if no language is specified, import all supported languages
-  const files = language ? [language] : Array.from(SupportedLanguagesSet);
+  const allowedAutoDetectionLang = new Set(Object.keys(Languages));
+  const removeFromAutoLang = new Set(['css', 'scss', 'php']);
+
+  function removeFromSet(originalSet, toBeRemovedSet) {
+    [...toBeRemovedSet].forEach(i => originalSet.delete(i));
+  }
+  removeFromSet(allowedAutoDetectionLang, removeFromAutoLang);
+  console.log(allowedAutoDetectionLang);
+  const files = language ? [language] : Array.from(allowedAutoDetectionLang);
 
   try {
     // use a reduce to sequentially resolve promises, in the order given.
