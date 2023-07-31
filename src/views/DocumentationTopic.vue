@@ -83,6 +83,7 @@
           :languagePaths="languagePaths"
           :enableOnThisPageNav="enableOnThisPageNav"
           :enableMinimized="enableMinimized"
+          :technologyUrl="technology.url"
         />
       </component>
     </template>

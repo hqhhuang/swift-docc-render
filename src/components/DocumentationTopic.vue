@@ -104,6 +104,7 @@
               :conformance="conformance"
               :source="remoteSource"
               :sections="primaryContentSectionsSanitized"
+              :technologyUrl="technologyUrl"
             />
             <ViewMore v-if="shouldShowViewMoreLink" :url="viewMoreLink" />
           </div>
@@ -368,6 +369,10 @@ export default {
     },
     availableLocales: {
       type: Array,
+      required: false,
+    },
+    technologyUrl: {
+      type: String,
       required: false,
     },
   },

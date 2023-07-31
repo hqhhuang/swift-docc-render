@@ -15,6 +15,7 @@
       v-bind="propsFor(section)"
       :is="componentFor(section)"
       :key="i"
+      :technologyUrl="technologyUrl"
     />
   </div>
 </template>
@@ -54,6 +55,10 @@ export default {
       validator: sections => sections.every(({ kind }) => (
         Object.prototype.hasOwnProperty.call(SectionKind, kind)
       )),
+    },
+    technologyUrl: {
+      type: String,
+      required: false,
     },
   },
   computed: {
