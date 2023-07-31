@@ -80,7 +80,6 @@ async function importHighlightFileForLanguage(language) {
     [...toBeRemovedSet].forEach(i => originalSet.delete(i));
   }
   removeFromSet(allowedAutoDetectionLang, removeFromAutoLang);
-  console.log(allowedAutoDetectionLang);
   const files = language ? [language] : Array.from(allowedAutoDetectionLang);
 
   try {
@@ -249,7 +248,6 @@ export function highlight(code, language) {
   const normalizedLang = getLanguageByAlias(language);
   if (!normalizedLang) {
     const highlighted = hljs.highlightAuto(code);
-    console.log(highlighted.language);
     return highlighted.value;
   }
   if (!hljs.getLanguage(normalizedLang)) {
