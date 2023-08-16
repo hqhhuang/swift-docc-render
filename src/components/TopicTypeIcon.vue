@@ -45,7 +45,7 @@ import { HeroColorsMap } from 'docc-render/constants/HeroColors';
 import SVGIcon from 'docc-render/components/SVGIcon.vue';
 import OverridableAsset from 'docc-render/components/OverridableAsset.vue';
 
-const TopicTypeIcons = {
+export const TopicTypeIcons = {
   [TopicTypes.article]: ArticleIcon,
   [TopicTypes.associatedtype]: CollectionIcon,
   [TopicTypes.buildSetting]: CollectionIcon,

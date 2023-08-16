@@ -133,7 +133,7 @@
 </template>
 
 <script>
-import TopicTypeIcon from 'docc-render/components/TopicTypeIcon.vue';
+import TopicTypeIcon from 'theme/components/TopicTypeIcon.vue';
 import FilterInput from 'docc-render/components/Filter/FilterInput.vue';
 import GenericModal from 'docc-render/components/GenericModal.vue';
 import QuickNavigationHighlighter from 'docc-render/components/Navigator/QuickNavigationHighlighter.vue';

@@ -112,7 +112,7 @@
 <script>
 import InlineChevronRightIcon from 'theme/components/Icons/InlineChevronRightIcon.vue';
 import BaseNavigatorCardItem from 'docc-render/components/Navigator/BaseNavigatorCardItem.vue';
-import TopicTypeIcon from 'docc-render/components/TopicTypeIcon.vue';
+import TopicTypeIcon from 'theme/components/TopicTypeIcon.vue';
 import HighlightMatches from 'docc-render/components/Navigator/HighlightMatches.vue';
 import Reference from 'docc-render/components/ContentNode/Reference.vue';
 import Badge from 'docc-render/components/Badge.vue';

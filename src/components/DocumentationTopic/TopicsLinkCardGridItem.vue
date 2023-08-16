@@ -33,7 +33,7 @@
 
 <script>
 import Card from 'docc-render/components/Card.vue';
-import TopicTypeIcon from 'docc-render/components/TopicTypeIcon.vue';
+import TopicTypeIcon from 'theme/components/TopicTypeIcon.vue';
 import { TopicRole } from 'docc-render/constants/roles';
 import CardSize from 'docc-render/constants/CardSize';
 import referencesProvider from 'docc-render/mixins/referencesProvider';

@@ -39,7 +39,7 @@
 
 <script>
 
-import TopicTypeIcon from 'docc-render/components/TopicTypeIcon.vue';
+import TopicTypeIcon from 'theme/components/TopicTypeIcon.vue';
 import { TopicTypes, TopicTypeAliases } from 'docc-render/constants/TopicTypes';
 import { HeroColorsMap, HeroColors } from 'docc-render/constants/HeroColors';
 import { TopicRole } from 'docc-render/constants/roles';
