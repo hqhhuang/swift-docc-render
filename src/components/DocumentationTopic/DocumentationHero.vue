@@ -41,7 +41,7 @@
 
 import TopicTypeIcon from 'theme/components/TopicTypeIcon.vue';
 import { TopicTypes, TopicTypeAliases } from 'docc-render/constants/TopicTypes';
-import { HeroColorsMap, HeroColors } from 'docc-render/constants/HeroColors';
+import { HeroColorsMap, HeroColors } from 'theme/constants/HeroColors';
 import { TopicRole } from 'docc-render/constants/roles';
 import { StandardColors } from 'docc-render/constants/StandardColors';
 
