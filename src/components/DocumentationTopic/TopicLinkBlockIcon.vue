@@ -27,7 +27,7 @@ import SVGIcon from 'docc-render/components/SVGIcon.vue';
 import { TopicRole } from 'docc-render/constants/roles';
 import OverridableAsset from 'docc-render/components/OverridableAsset.vue';
 
-const TopicRoleIcons = {
+export const TopicRoleIcons = {
   [TopicRole.article]: ArticleIcon,
   [TopicRole.collection]: TechnologyIcon,
   [TopicRole.collectionGroup]: ApiCollectionIcon,

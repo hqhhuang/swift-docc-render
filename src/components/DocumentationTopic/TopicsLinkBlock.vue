@@ -68,7 +68,7 @@ import { buildUrl } from 'docc-render/utils/url-helper';
 import Badge from 'docc-render/components/Badge.vue';
 import WordBreak from 'docc-render/components/WordBreak.vue';
 import ContentNode from 'docc-render/components/DocumentationTopic/ContentNode.vue';
-import TopicLinkBlockIcon from 'docc-render/components/DocumentationTopic/TopicLinkBlockIcon.vue';
+import TopicLinkBlockIcon from 'theme/components/DocumentationTopic/TopicLinkBlockIcon.vue';
 import DecoratedTopicTitle from 'docc-render/components/DocumentationTopic/DecoratedTopicTitle.vue';
 import ConditionalConstraints
   from 'docc-render/components/DocumentationTopic/ConditionalConstraints.vue';
