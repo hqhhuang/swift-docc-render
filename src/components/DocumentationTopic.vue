@@ -131,13 +131,25 @@
             :sections="seeAlsoSections"
           />
         </div>
-        <template v-if="enableOnThisPageNav">
+        <template v-if="enableOnThisPageNav && shouldShowSideSummary">
           <OnThisPageStickyContainer v-show="isOnThisPageNavVisible">
             <OnThisPageNav v-if="topicState.onThisPageSections.length > 2" />
+            <Reference
+              v-if="!isLoading && sideSummaryURL"
+              class="overflow-link"
+              :url="sideSummaryURL"
+              :disableSummaryToggle="true"
+            />
+            <DocumentationTopic
+              v-if="!isLoading && sideSummaryURL"
+              v-bind="extractProps(sideSummaryData)"
+              :shouldShowSideSummary="false"
+              enableMinimized
+            />
           </OnThisPageStickyContainer>
         </template>
       </div>
-      <BetaLegalText v-if="!isTargetIDE && hasBetaContent" />
+      <BetaLegalText v-if="!isTargetIDE && hasBetaContent && shouldShowSideSummary" />
     </component>
     <div aria-live="polite" class="visuallyhidden">
       {{ $t('documentation.current-page', { title: pageTitle }) }}
@@ -150,6 +162,7 @@ import Language from 'docc-render/constants/Language';
 import metadata from 'theme/mixins/metadata';
 import { buildUrl } from 'docc-render/utils/url-helper';
 import { normalizeRelativePath } from 'docc-render/utils/assets';
+import { fetchDataForPreview } from 'docc-render/utils/data';
 
 import AppStore from 'docc-render/stores/AppStore';
 import Aside from 'docc-render/components/ContentNode/Aside.vue';
@@ -168,6 +181,7 @@ import ContentNode from './DocumentationTopic/ContentNode.vue';
 import CallToActionButton from './CallToActionButton.vue';
 import DefaultImplementations from './DocumentationTopic/DefaultImplementations.vue';
 import PrimaryContent from './DocumentationTopic/PrimaryContent.vue';
+import Reference from './ContentNode/Reference.vue';
 import Relationships from './DocumentationTopic/Relationships.vue';
 import RequirementMetadata from './DocumentationTopic/Description/RequirementMetadata.vue';
 import Availability from './DocumentationTopic/Summary/Availability.vue';
@@ -211,6 +225,7 @@ export default {
     DownloadButton: CallToActionButton,
     LanguageSwitcher,
     PrimaryContent,
+    Reference,
     Relationships,
     RequirementMetadata,
     Availability,
@@ -370,6 +385,11 @@ export default {
       type: Array,
       required: false,
     },
+    shouldShowSideSummary: {
+      type: Boolean,
+      required: false,
+      default: () => true,
+    },
   },
   provide() {
     // NOTE: this is not reactive: if this.identifier change, the provided value
@@ -385,6 +405,8 @@ export default {
   data() {
     return {
       topicState: this.store.state,
+      isLoading: true,
+      sideSummaryData: {},
     };
   },
   computed: {
@@ -490,8 +512,9 @@ export default {
       enableMinimized,
       hasNoExpandedDocumentation,
       viewMoreLink,
+      shouldShowSideSummary,
     }) => (
-      enableMinimized && !hasNoExpandedDocumentation && viewMoreLink
+      enableMinimized && !hasNoExpandedDocumentation && viewMoreLink && shouldShowSideSummary
     ),
     tagName() {
       return this.isSymbolDeprecated ? this.$t('aside-kind.deprecated') : this.$t('aside-kind.beta');
@@ -520,6 +543,7 @@ export default {
     declarations({ primaryContentSections = [] }) {
       return primaryContentSections.filter(({ kind }) => kind === SectionKind.declarations);
     },
+    sideSummaryURL: ({ topicState }) => topicState.sideSummaryURL,
   },
   methods: {
     extractProps(json) {
@@ -629,8 +653,12 @@ export default {
     }
 
     AppStore.setAvailableLocales(this.availableLocales || []);
-    this.store.reset();
-    this.store.setReferences(this.references);
+
+    if (this.shouldShowSideSummary) {
+      this.store.reset();
+    }
+    Object.assign(this.store.state.references, this.references);
+    this.store.setSummaryToggleState(this.shouldShowSideSummary);
   },
   watch: {
     // update the references in the store, in case they update, but the component is not re-created
@@ -639,6 +667,23 @@ export default {
     },
     availableLocales(availableLocales) {
       AppStore.setAvailableLocales(availableLocales);
+    },
+    async sideSummaryURL(newVal) {
+      if (!newVal) return;
+      // reset summary
+      this.isLoading = true;
+      this.sideSummaryData = {};
+      try {
+        this.sideSummaryData = await fetchDataForPreview(`${newVal}`);
+        // Object.assign(this.store.state.references, this.sideSummaryData.references);
+      } catch (error) {
+        console.error('Error fetching summary:', error);
+      } finally {
+        this.isLoading = false;
+      }
+    },
+    shouldShowSideSummary(newVal) {
+      this.store.setSummaryToggleState(newVal);
     },
   },
 };

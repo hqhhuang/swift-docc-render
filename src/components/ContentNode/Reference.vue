@@ -9,7 +9,18 @@
 -->
 
 <template>
-  <component :is="refComponent" :url="urlWithParams" :is-active="isActiveComputed">
+  <div v-if="shouldShowToggle" class="reference-link">
+    <component :is="refComponent" :url="urlWithParams" :is-active="isActiveComputed">
+      <slot />
+    </component>
+    <button
+      class="expand-button"
+      @click="setSideSummaryURL"
+    >
+      <DocumentIcon />
+    </button>
+  </div>
+  <component v-else :is="refComponent" :url="urlWithParams" :is-active="isActiveComputed">
     <slot />
   </component>
 </template>
@@ -17,7 +28,7 @@
 <script>
 import { buildUrl } from 'docc-render/utils/url-helper';
 import { TopicRole } from 'docc-render/constants/roles';
-
+import DocumentIcon from 'theme/components/Icons/DocumentIcon.vue';
 import { notFoundRouteName } from 'docc-render/constants/router';
 import ReferenceExternal from './ReferenceExternal.vue';
 import ReferenceInternalSymbol from './ReferenceInternalSymbol.vue';
@@ -25,6 +36,24 @@ import ReferenceInternal from './ReferenceInternal.vue';
 
 export default {
   name: 'Reference',
+  components: {
+    DocumentIcon,
+  },
+  inject: {
+    store: {
+      default() {
+        return {
+          reset() {},
+          state: {},
+        };
+      },
+    },
+  },
+  methods: {
+    setSideSummaryURL() {
+      this.store.setSideSummaryURL(this.url);
+    },
+  },
   computed: {
     isInternal({ url }) {
       if (!url.startsWith('/') && !url.startsWith('#')) {
@@ -64,6 +93,9 @@ export default {
     isActiveComputed({ url, isActive }) {
       return !!(url && isActive);
     },
+    shouldShowToggle({ store, disableSummaryToggle }) {
+      return disableSummaryToggle ? false : store.state.shouldShowToggle;
+    },
   },
   props: {
     url: {
@@ -95,6 +127,28 @@ export default {
       type: Boolean,
       default: false,
     },
+    disableSummaryToggle: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
   },
 };
 </script>
+
+<style scoped lang='scss'>
+@import 'docc-render/styles/_core.scss';
+
+.reference-link {
+  display: inline;
+  white-space: nowrap; // no line break before icon
+}
+
+.expand-button .document-icon {
+  width: 21px;
+  height: 21px;;
+  vertical-align: sub;
+  margin-left: 0px;
+  margin-right: -3px;
+}
+</style>

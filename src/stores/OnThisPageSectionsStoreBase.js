@@ -12,10 +12,13 @@ export default {
   state: {
     onThisPageSections: [],
     currentPageAnchor: null,
+    sideSummaryURL: '',
   },
   resetPageSections() {
     this.state.onThisPageSections = [];
     this.state.currentPageAnchor = null;
+    this.state.sideSummaryURL = '';
+    this.state.shouldShowToggle = true;
   },
   /**
    * Register a section for the OnThisPage navigation
@@ -32,5 +35,11 @@ export default {
     const i = this.state.onThisPageSections.findIndex(({ anchor }) => anchor === sectionAnchor);
     if (i === -1) return;
     this.state.currentPageAnchor = sectionAnchor;
+  },
+  setSideSummaryURL(sideSummaryURL) {
+    this.state.sideSummaryURL = sideSummaryURL;
+  },
+  setSummaryToggleState(shouldShowToggle) {
+    this.state.shouldShowToggle = shouldShowToggle;
   },
 };
