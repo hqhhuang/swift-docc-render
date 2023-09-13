@@ -36,7 +36,7 @@ export default {
   // padding-right: $nav-padding;
   box-sizing: border-box;
   // padding-bottom: var(--spacing-stacked-margin-small);
-  max-height: calc(100vh - #{$top});
+  max-height: calc(100vh - #{$top} - 25px);
   overflow: hidden;
 
   @media print {
