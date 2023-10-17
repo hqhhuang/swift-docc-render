@@ -10,6 +10,7 @@
 
 <template>
   <div class="primary-content">
+    <slot></slot>
     <component
       v-for="(section, i) in sections"
       v-bind="propsFor(section)"
@@ -128,6 +129,7 @@ export default {
     border-top-width: 1px;
     content: '';
     display: block;
+    z-index: -1;
   }
 
   :deep() {

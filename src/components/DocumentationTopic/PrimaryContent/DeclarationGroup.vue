@@ -20,7 +20,30 @@
     <Source
       :tokens="declaration.tokens"
       :language="interfaceLanguage"
+      :class="{ 'has-overload': showDeclarationOverloads
+        && declaration.identifier === selectedIdentifier }"
     />
+
+    <div
+      class="overloaded-declaration-group"
+      :class="classes"
+      ref="apiChangesDiff"
+      v-if="showDeclarationOverloads"
+    >
+      <router-link
+        v-for="declaration in otherDeclarations"
+        :key="declaration.identifier"
+        class="overload-declaration"
+        :to="references[declaration.identifier].url"
+      >
+        <Source
+          :tokens="declaration.tokens"
+          :language="interfaceLanguage"
+          :class="{ 'has-overload': showDeclarationOverloads
+            && declaration.identifier === selectedIdentifier }"
+        />
+      </router-link>
+    </div>
   </div>
 </template>
 
@@ -48,6 +71,21 @@ export default {
     symbolKind: {
       default: () => undefined,
     },
+    store: {
+      default: () => ({
+        state: {
+          references: {},
+        },
+      }),
+    },
+    identifier: {
+      default: () => undefined,
+    },
+  },
+  data() {
+    return {
+      selectedIdentifier: this.identifier,
+    };
   },
   props: {
     declaration: {
@@ -70,6 +108,11 @@ export default {
       type: String,
       required: false,
     },
+    showDeclarationOverloads: {
+      type: Boolean,
+      // required: true,
+      default: true, // FIXME: Change this
+    },
   },
   computed: {
     classes: ({ changeType, multipleLinesClass, displaysMultipleLinesAfterAPIChanges }) => ({
@@ -80,6 +123,8 @@ export default {
       return this.declaration.platforms.join(', ');
     },
     isSwift: ({ interfaceLanguage }) => interfaceLanguage === Language.swift.key.api,
+    otherDeclarations: ({ declaration }) => declaration.otherDeclarations || null,
+    references: ({ store }) => store.state.references,
   },
 };
 </script>
@@ -100,6 +145,18 @@ export default {
   &:first-of-type {
     margin-top: 1rem;
   }
+}
+
+// show "selected" declaration style
+:deep() {
+  .has-overload {
+    border-color: var(--color-focus-border-color, var(--color-focus-border-color));
+    background: var(--background, var(--color-code-background));
+  }
+}
+
+.overload-declaration {
+  text-decoration: none;
 }
 
 .source {

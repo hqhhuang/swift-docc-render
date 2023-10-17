@@ -227,7 +227,6 @@ $horizontal-padding: em($code-source-spacing + rem(5px));
 $docs-declaration-source-border-width: 1px !default;
 
 .source {
-  background: var(--background, var(--color-code-background));
   border-color: var(--color-grid);
   color: var(--text, var(--color-code-plain));
   border-radius: $large-border-radius;

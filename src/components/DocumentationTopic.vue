@@ -104,7 +104,18 @@
               :conformance="conformance"
               :source="remoteSource"
               :sections="primaryContentSectionsSanitized"
-            />
+            >
+            <!-- :showDeclarationOverload="hasDeclarationOverloads && showDeclarationOverloads" -->
+
+              <div v-if="hasDeclarationOverloads" class="overload-menu">
+                <button v-if="showDeclarationOverloads" class="overload-menu-items">
+                  Hide other declarations<div class="overload-button"><CloseIcon /></div>
+                </button>
+                <button v-else class="overload-menu-items">
+                  Show all declarations<div class="overload-button"><CloseIcon /></div>
+                </button>
+              </div>
+            </PrimaryContent>
             <ViewMore v-if="shouldShowViewMoreLink" :url="viewMoreLink" />
           </div>
           <Topics
@@ -160,6 +171,7 @@ import DocumentationHero from 'docc-render/components/DocumentationTopic/Documen
 import WordBreak from 'docc-render/components/WordBreak.vue';
 import { TopicSectionsStyle } from 'docc-render/constants/TopicSectionsStyle';
 import OnThisPageNav from 'theme/components/OnThisPageNav.vue';
+import CloseIcon from 'theme/components/Icons/CloseIcon.vue';
 import { SectionKind } from 'docc-render/constants/PrimaryContentSection';
 import Declaration from 'docc-render/components/DocumentationTopic/PrimaryContent/Declaration.vue';
 import { StandardColors } from 'docc-render/constants/StandardColors';
@@ -219,6 +231,7 @@ export default {
     Topics,
     ViewMore,
     WordBreak,
+    CloseIcon,
   },
   props: {
     abstract: {
@@ -385,6 +398,7 @@ export default {
   data() {
     return {
       topicState: this.store.state,
+      showDeclarationOverloads: false, // Show all overloads by default
     };
   },
   computed: {
@@ -520,6 +534,14 @@ export default {
     declarations({ primaryContentSections = [] }) {
       return primaryContentSections.filter(({ kind }) => kind === SectionKind.declarations);
     },
+    hasDeclarationOverloads({ declarations = [] }) {
+      // there's always only 1 declaration at this level
+      // declarations[0].declarations.forEach((decl) => {
+      //   console.log(decl);
+      //   console.log(Object.prototype.hasOwnProperty.call(decl, 'otherDeclarations'));
+      // });
+      return declarations[0].declarations.some(decl => Object.prototype.hasOwnProperty.call(decl, 'otherDeclarations'));
+    },
   },
   methods: {
     extractProps(json) {
@@ -609,6 +631,7 @@ export default {
     },
   },
   created() {
+    console.log('DocumentationTopic Component Created');
     // Switch to the Objective-C variant of a page if the query parameter is not
     // present in the URL _but_ the user has previously selected Objective-C
     // using the navigation toggle (indicating a semi-global preference/mode)
@@ -646,6 +669,53 @@ export default {
 
 <style scoped lang="scss">
 @import 'docc-render/styles/_core.scss';
+$space-size: 15px;
+
+.overload-menu {
+  background: white;
+  position: relative;
+  margin-top: -15px !important;
+  margin-bottom: unset;
+  padding-left: 15px;
+  padding-right: 15px;
+  left: auto;
+  right: auto;
+  margin-left: auto;
+  margin-right: auto;
+  width: max-content;
+  cursor: pointer;
+  color: var(--colors-link, var(--color-tutorials-overview-link));
+
+  .overload-menu-items {
+    display: flex;
+    flex-direction: row;
+  }
+
+  .overload-button {
+    margin-left: 5px;
+    margin-top: 2px !important;
+
+    // padding: 9.5px;
+    // border-radius: 18px;
+    // background: rgba(210, 210, 215, 0.64); //TODO: DarkMode
+    // display: flex;
+    // align-content: center;
+    // justify-content: center;
+    // z-index: 1;
+    // position: absolute;
+    // right: $space-size / 2;
+    // top: $space-size / 2;
+    // background: var(--colors-link, var(--color-tutorials-overview-link));
+
+    svg {
+      width: $space-size;
+      height: $space-size;
+      // fill: rgba(0, 0, 0, 0.56);
+      fill: var(--colors-link, var(--color-tutorials-overview-link));
+
+    }
+  }
+}
 
 .doc-topic {
   display: flex;
