@@ -18,31 +18,35 @@
       <strong>{{ caption }}</strong>
     </p>
     <Source
+      v-if="!!!otherDeclarations || isVisible
+        || declaration.identifier === selectedIdentifier"
       :tokens="declaration.tokens"
       :language="interfaceLanguage"
-      :class="{ 'has-overload': showDeclarationOverloads
-        && declaration.identifier === selectedIdentifier }"
+      :class="{ 'selected-overload': isVisible
+        ? declaration.identifier === selectedIdentifier : true }"
     />
+    <!-- FIXME: if overload is collapsed, no outline -->
 
     <div
       class="overloaded-declaration-group"
       :class="classes"
-      ref="apiChangesDiff"
-      v-if="showDeclarationOverloads"
     >
-      <router-link
+      <button
         v-for="declaration in otherDeclarations"
         :key="declaration.identifier"
         class="overload-declaration"
-        :to="references[declaration.identifier].url"
+        @click="handleSelectOverload(declaration.identifier)"
       >
-        <Source
-          :tokens="declaration.tokens"
-          :language="interfaceLanguage"
-          :class="{ 'has-overload': showDeclarationOverloads
-            && declaration.identifier === selectedIdentifier }"
-        />
-      </router-link>
+        <transition-expand>
+          <Source
+            v-if="isVisible || declaration.identifier === selectedIdentifier"
+            :tokens="declaration.tokens"
+            :language="interfaceLanguage"
+            :class="{ 'selected-overload': isVisible
+              && declaration.identifier === selectedIdentifier }"
+          />
+        </transition-expand>
+      </button>
     </div>
   </div>
 </template>
@@ -50,6 +54,7 @@
 <script>
 import DeclarationSource from 'docc-render/components/DocumentationTopic/PrimaryContent/DeclarationSource.vue';
 import Language from 'docc-render/constants/Language';
+import TransitionExpand from 'docc-render/components/TransitionExpand.vue';
 import { APIChangesMultipleLines } from 'docc-render/mixins/apiChangesHelpers';
 
 /**
@@ -59,6 +64,7 @@ export default {
   name: 'DeclarationGroup',
   components: {
     Source: DeclarationSource,
+    TransitionExpand,
   },
   mixins: [APIChangesMultipleLines],
   inject: {
@@ -108,10 +114,10 @@ export default {
       type: String,
       required: false,
     },
-    showDeclarationOverloads: {
+    expandDeclarationOverloads: {
       type: Boolean,
       // required: true,
-      default: true, // FIXME: Change this
+      default: false, // FIXME: Change this
     },
   },
   computed: {
@@ -125,6 +131,22 @@ export default {
     isSwift: ({ interfaceLanguage }) => interfaceLanguage === Language.swift.key.api,
     otherDeclarations: ({ declaration }) => declaration.otherDeclarations || null,
     references: ({ store }) => store.state.references,
+    isVisible: {
+      get: ({ expandDeclarationOverloads }) => expandDeclarationOverloads,
+      set(value) {
+        this.$emit('update:expandDeclarationOverloads', value);
+      },
+    },
+  },
+  methods: {
+    async handleSelectOverload(identifier) {
+      this.selectedIdentifier = identifier;
+      this.isVisible = false; // collapse the overloads
+      // await animation finishes
+      setTimeout(() => {
+        this.$router.push(this.references[identifier].url);
+      }, 500);
+    },
   },
 };
 </script>
@@ -149,10 +171,14 @@ export default {
 
 // show "selected" declaration style
 :deep() {
-  .has-overload {
+  .selected-overload {
     border-color: var(--color-focus-border-color, var(--color-focus-border-color));
     background: var(--background, var(--color-code-background));
   }
+}
+
+button {
+  width: 100%;
 }
 
 .overload-declaration {

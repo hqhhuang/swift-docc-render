@@ -71,6 +71,7 @@
             :conformance="conformance"
             :declarations="declaration.declarations"
             :source="remoteSource"
+            :expandDeclarationOverloads.sync="expandDeclarationOverloads"
           />
         </div>
       </DocumentationHero>
@@ -108,10 +109,18 @@
             <!-- :showDeclarationOverload="hasDeclarationOverloads && showDeclarationOverloads" -->
 
               <div v-if="hasDeclarationOverloads" class="overload-menu">
-                <button v-if="showDeclarationOverloads" class="overload-menu-items">
+                <button
+                  v-if="expandDeclarationOverloads"
+                  class="overload-menu-items"
+                  @click="toggleOverloads"
+                >
                   Hide other declarations<div class="overload-button"><CloseIcon /></div>
                 </button>
-                <button v-else class="overload-menu-items">
+                <button
+                  v-else
+                  class="overload-menu-items"
+                  @click="toggleOverloads"
+                >
                   Show all declarations<div class="overload-button"><CloseIcon /></div>
                 </button>
               </div>
@@ -398,7 +407,7 @@ export default {
   data() {
     return {
       topicState: this.store.state,
-      showDeclarationOverloads: false, // Show all overloads by default
+      expandDeclarationOverloads: false, // Show all overloads by default
     };
   },
   computed: {
@@ -628,6 +637,9 @@ export default {
         swiftPath,
         standardColorIdentifier,
       };
+    },
+    toggleOverloads() {
+      this.expandDeclarationOverloads = !this.expandDeclarationOverloads;
     },
   },
   created() {

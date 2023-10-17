@@ -25,6 +25,7 @@
         :declaration="declaration"
         :shouldCaption="hasPlatformVariants"
         :changeType="changeType"
+        :expandDeclarationOverloads.sync="isVisible"
       />
     </template>
     <DeclarationSourceLink
@@ -81,6 +82,10 @@ export default {
       type: Array,
       required: true,
     },
+    expandDeclarationOverloads: {
+      type: Boolean,
+      required: false,
+    },
   },
   computed: {
     /**
@@ -133,6 +138,12 @@ export default {
     changeClasses: ({ changeType }) => ({
       [`changed changed-${changeType}`]: changeType,
     }),
+    isVisible: {
+      get: ({ expandDeclarationOverloads }) => expandDeclarationOverloads,
+      set(value) {
+        this.$emit('update:expandDeclarationOverloads', value);
+      },
+    },
   },
 };
 </script>
