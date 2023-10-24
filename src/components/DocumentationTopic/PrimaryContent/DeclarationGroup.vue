@@ -24,12 +24,15 @@
       @click="handleSelectOverload(declaration.identifier)"
       :disabled="!hasOtherDeclarations || declaration.identifier === selectedIdentifier"
     >
+    <transition-expand>
       <Source
+        v-if="declaration.identifier === selectedIdentifier || isVisible"
         :tokens="declaration.tokens"
         :language="interfaceLanguage"
         :class="{ 'selected-overload': isVisible
           && declaration.identifier === selectedIdentifier }"
       />
+    </transition-expand>
     </button>
   </div>
 </template>
@@ -37,7 +40,7 @@
 <script>
 import DeclarationSource from 'docc-render/components/DocumentationTopic/PrimaryContent/DeclarationSource.vue';
 import Language from 'docc-render/constants/Language';
-// import TransitionExpand from 'docc-render/components/TransitionExpand.vue';
+import TransitionExpand from 'docc-render/components/TransitionExpand.vue';
 import { APIChangesMultipleLines } from 'docc-render/mixins/apiChangesHelpers';
 
 /**
@@ -47,7 +50,7 @@ export default {
   name: 'DeclarationGroup',
   components: {
     Source: DeclarationSource,
-    // TransitionExpand,
+    TransitionExpand,
   },
   mixins: [APIChangesMultipleLines],
   inject: {
@@ -105,8 +108,8 @@ export default {
   },
   computed: {
     hasOtherDeclarations: ({ declaration }) => declaration.otherDeclarations || null,
-    declarationTokens: ({ declaration, hasOtherDeclarations, isVisible }) => {
-      if (!hasOtherDeclarations || !isVisible) return [declaration];
+    declarationTokens: ({ declaration, hasOtherDeclarations }) => {
+      if (!hasOtherDeclarations) return [declaration];
       const {
         otherDeclarations,
         indexInOtherDeclarations,
