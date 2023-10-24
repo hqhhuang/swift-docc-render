@@ -19,11 +19,11 @@
     </p>
 
     <transition-expand
-      v-for="declaration in declarationTokens"
+      v-for="(declaration, i) in declarationTokens"
       :key="declaration.identifier"
     >
-      <div
-        v-show="!hasOtherDeclarations || declaration.identifier === identifier || isVisible"
+      <component :is="getWrapperComponent(declaration)"
+        v-if="!hasOtherDeclarations || declaration.identifier === identifier || isVisible"
         @click="handleSelectOverload(declaration.identifier)"
         :class=" { 'declaration-overload': hasOtherDeclarations && isVisible }"
       >
@@ -31,9 +31,10 @@
           :tokens="declaration.tokens"
           :language="interfaceLanguage"
           :class="{ 'selected-overload': isVisible
-            && declaration.identifier === identifier }"
+            && declaration.identifier === identifier,
+            'first-overload': i === 0 }"
         />
-      </div>
+      </component>
     </transition-expand>
   </div>
 </template>
@@ -144,6 +145,10 @@ export default {
         this.$router.push(this.references[identifier].url);
       }, 500);
     },
+    getWrapperComponent(decl) {
+      return (!this.isVisible || decl.identifier === this.identifier)
+        ? 'div' : 'button';
+    },
   },
 };
 </script>
@@ -172,9 +177,10 @@ export default {
     background: var(--background, var(--color-code-background));
   }
 
-  & > :not(.selected-overload):hover {
-    cursor: pointer;
-  }
+  // TODO: not needed in this implmentation
+  // & > :not(.selected-overload):hover {
+  //   cursor: pointer;
+  // }
 }
 
 button {
@@ -182,7 +188,10 @@ button {
 }
 
 .source {
-  margin: var(--declaration-code-listing-margin);
+  // needed when overloads are expanded, first item is a button
+  &:not(.first-overload) {
+    margin: var(--declaration-code-listing-margin);
+  }
 
   .platforms + & {
     margin: 0;
