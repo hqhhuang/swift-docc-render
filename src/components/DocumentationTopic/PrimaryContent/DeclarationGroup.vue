@@ -138,10 +138,7 @@ export default {
   },
   methods: {
     async handleSelectOverload(identifier) {
-      // probably don't need to do this...
-      // this.selectedIdentifier = identifier;
       this.isVisible = false; // collapse the overloads
-      console.log(identifier);
       // await animation finishes
       setTimeout(() => {
         this.$router.push(this.references[identifier].url);
@@ -168,8 +165,6 @@ export default {
     margin-top: 1rem;
   }
 }
-
-$dropdown-transition-duration: 250ms;
 
 .declaration-overload {
   & > .selected-overload {
