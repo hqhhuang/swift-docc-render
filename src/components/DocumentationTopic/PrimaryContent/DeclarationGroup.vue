@@ -17,44 +17,27 @@
     <p v-if="shouldCaption" class="platforms">
       <strong>{{ caption }}</strong>
     </p>
-    <Source
-      v-if="!!!otherDeclarations || isVisible
-        || declaration.identifier === selectedIdentifier"
-      :tokens="declaration.tokens"
-      :language="interfaceLanguage"
-      :class="{ 'selected-overload': isVisible
-        ? declaration.identifier === selectedIdentifier : true }"
-    />
-    <!-- FIXME: if overload is collapsed, no outline -->
-
-    <div
-      class="overloaded-declaration-group"
-      :class="classes"
+    <button
+      v-for="declaration in declarationTokens"
+      :key="declaration.identifier"
+      class="overload-declaration"
+      @click="handleSelectOverload(declaration.identifier)"
+      :disabled="!hasOtherDeclarations || declaration.identifier === selectedIdentifier"
     >
-      <button
-        v-for="declaration in otherDeclarations"
-        :key="declaration.identifier"
-        class="overload-declaration"
-        @click="handleSelectOverload(declaration.identifier)"
-      >
-        <transition-expand>
-          <Source
-            v-if="isVisible || declaration.identifier === selectedIdentifier"
-            :tokens="declaration.tokens"
-            :language="interfaceLanguage"
-            :class="{ 'selected-overload': isVisible
-              && declaration.identifier === selectedIdentifier }"
-          />
-        </transition-expand>
-      </button>
-    </div>
+      <Source
+        :tokens="declaration.tokens"
+        :language="interfaceLanguage"
+        :class="{ 'selected-overload': isVisible
+          && declaration.identifier === selectedIdentifier }"
+      />
+    </button>
   </div>
 </template>
 
 <script>
 import DeclarationSource from 'docc-render/components/DocumentationTopic/PrimaryContent/DeclarationSource.vue';
 import Language from 'docc-render/constants/Language';
-import TransitionExpand from 'docc-render/components/TransitionExpand.vue';
+// import TransitionExpand from 'docc-render/components/TransitionExpand.vue';
 import { APIChangesMultipleLines } from 'docc-render/mixins/apiChangesHelpers';
 
 /**
@@ -64,7 +47,7 @@ export default {
   name: 'DeclarationGroup',
   components: {
     Source: DeclarationSource,
-    TransitionExpand,
+    // TransitionExpand,
   },
   mixins: [APIChangesMultipleLines],
   inject: {
@@ -121,6 +104,23 @@ export default {
     },
   },
   computed: {
+    hasOtherDeclarations: ({ declaration }) => declaration.otherDeclarations || null,
+    declarationTokens: ({ declaration, hasOtherDeclarations, isVisible }) => {
+      if (!hasOtherDeclarations || !isVisible) return [declaration];
+      const {
+        otherDeclarations,
+        indexInOtherDeclarations,
+        tokens,
+        identifier,
+      } = declaration;
+
+      // insert declaration into the correct position if has overloaded symbols
+      return [
+        ...otherDeclarations.slice(0, indexInOtherDeclarations),
+        { tokens, identifier },
+        ...otherDeclarations.slice(indexInOtherDeclarations),
+      ];
+    },
     classes: ({ changeType, multipleLinesClass, displaysMultipleLinesAfterAPIChanges }) => ({
       [`declaration-group--changed declaration-group--${changeType}`]: changeType,
       [multipleLinesClass]: displaysMultipleLinesAfterAPIChanges,
@@ -129,7 +129,6 @@ export default {
       return this.declaration.platforms.join(', ');
     },
     isSwift: ({ interfaceLanguage }) => interfaceLanguage === Language.swift.key.api,
-    otherDeclarations: ({ declaration }) => declaration.otherDeclarations || null,
     references: ({ store }) => store.state.references,
     isVisible: {
       get: ({ expandDeclarationOverloads }) => expandDeclarationOverloads,

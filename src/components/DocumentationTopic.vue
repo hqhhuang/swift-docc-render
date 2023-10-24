@@ -544,12 +544,8 @@ export default {
       return primaryContentSections.filter(({ kind }) => kind === SectionKind.declarations);
     },
     hasDeclarationOverloads({ declarations = [] }) {
-      // there's always only 1 declaration at this level
-      // declarations[0].declarations.forEach((decl) => {
-      //   console.log(decl);
-      //   console.log(Object.prototype.hasOwnProperty.call(decl, 'otherDeclarations'));
-      // });
-      return declarations[0].declarations.some(decl => Object.prototype.hasOwnProperty.call(decl, 'otherDeclarations'));
+      // there's always only 1 `declaration` at this level
+      return declarations[0].declarations.some(decl => Object.prototype.hasOwnProperty.call(decl, 'indexInOtherDeclarations'));
     },
   },
   methods: {
