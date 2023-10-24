@@ -17,23 +17,24 @@
     <p v-if="shouldCaption" class="platforms">
       <strong>{{ caption }}</strong>
     </p>
-    <button
+
+    <transition-expand
       v-for="declaration in declarationTokens"
       :key="declaration.identifier"
-      class="overload-declaration"
-      @click="handleSelectOverload(declaration.identifier)"
-      :disabled="!hasOtherDeclarations || declaration.identifier === selectedIdentifier"
     >
-    <transition-expand>
-      <Source
-        v-if="declaration.identifier === selectedIdentifier || isVisible"
-        :tokens="declaration.tokens"
-        :language="interfaceLanguage"
-        :class="{ 'selected-overload': isVisible
-          && declaration.identifier === selectedIdentifier }"
-      />
+      <div
+        v-show="!hasOtherDeclarations || declaration.identifier === identifier || isVisible"
+        @click="handleSelectOverload(declaration.identifier)"
+        :class=" { 'declaration-overload': hasOtherDeclarations && isVisible }"
+      >
+        <Source
+          :tokens="declaration.tokens"
+          :language="interfaceLanguage"
+          :class="{ 'selected-overload': isVisible
+            && declaration.identifier === identifier }"
+        />
+      </div>
     </transition-expand>
-    </button>
   </div>
 </template>
 
@@ -73,11 +74,6 @@ export default {
     identifier: {
       default: () => undefined,
     },
-  },
-  data() {
-    return {
-      selectedIdentifier: this.identifier,
-    };
   },
   props: {
     declaration: {
@@ -142,8 +138,10 @@ export default {
   },
   methods: {
     async handleSelectOverload(identifier) {
-      this.selectedIdentifier = identifier;
+      // probably don't need to do this...
+      // this.selectedIdentifier = identifier;
       this.isVisible = false; // collapse the overloads
+      console.log(identifier);
       // await animation finishes
       setTimeout(() => {
         this.$router.push(this.references[identifier].url);
@@ -171,20 +169,21 @@ export default {
   }
 }
 
-// show "selected" declaration style
-:deep() {
-  .selected-overload {
+$dropdown-transition-duration: 250ms;
+
+.declaration-overload {
+  & > .selected-overload {
     border-color: var(--color-focus-border-color, var(--color-focus-border-color));
     background: var(--background, var(--color-code-background));
+  }
+
+  & > :not(.selected-overload):hover {
+    cursor: pointer;
   }
 }
 
 button {
   width: 100%;
-}
-
-.overload-declaration {
-  text-decoration: none;
 }
 
 .source {
