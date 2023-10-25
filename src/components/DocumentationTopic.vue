@@ -42,10 +42,10 @@
         >
           <component :is="titleBreakComponent">{{ title }}</component>
           <template #after v-if="isSymbolDeprecated || isSymbolBeta">
-          <small
-          :class="tagName"
-          :data-tag-name="tagName"
-          />
+            <small
+              :class="tagName"
+              :data-tag-name="tagName"
+            />
           </template>
         </Title>
         <Abstract
@@ -106,22 +106,25 @@
               :source="remoteSource"
               :sections="primaryContentSectionsSanitized"
             >
-            <!-- :showDeclarationOverload="hasDeclarationOverloads && showDeclarationOverloads" -->
-
+              <!--:showDeclarationOverload="hasDeclarationOverloads && showDeclarationOverloads" -->
               <div v-if="hasDeclarationOverloads" class="overload-menu">
                 <button
                   v-if="expandDeclarationOverloads"
-                  class="overload-menu-items"
+                  class="overload-menu-trigger"
                   @click="toggleOverloads"
                 >
-                  Hide other declarations<div class="overload-button"><CloseIcon /></div>
+                  Hide other declarations
+                  <div class="overload-button">
+                    <CloseIcon />
+                  </div>
                 </button>
                 <button
                   v-else
-                  class="overload-menu-items"
+                  class="overload-menu-trigger"
                   @click="toggleOverloads"
                 >
-                  Show all declarations<div class="overload-button"><CloseIcon /></div>
+                  Show all declarations
+                  <span class="overload-button"><InlineChevronDownIcon /></span>
                 </button>
               </div>
             </PrimaryContent>
@@ -184,6 +187,7 @@ import CloseIcon from 'theme/components/Icons/CloseIcon.vue';
 import { SectionKind } from 'docc-render/constants/PrimaryContentSection';
 import Declaration from 'docc-render/components/DocumentationTopic/PrimaryContent/Declaration.vue';
 import { StandardColors } from 'docc-render/constants/StandardColors';
+import InlineChevronDownIcon from '@/components/Icons/InlineChevronDownIcon.vue';
 import Abstract from './DocumentationTopic/Description/Abstract.vue';
 import ContentNode from './DocumentationTopic/ContentNode.vue';
 import CallToActionButton from './CallToActionButton.vue';
@@ -220,6 +224,7 @@ export default {
     },
   },
   components: {
+    InlineChevronDownIcon,
     Declaration,
     OnThisPageStickyContainer,
     OnThisPageNav,
@@ -427,7 +432,11 @@ export default {
         0,
       );
     },
-    shouldShowAvailability: ({ platforms, technologies, enableMinimized }) => (
+    shouldShowAvailability: ({
+      platforms,
+      technologies,
+      enableMinimized,
+    }) => (
       ((platforms || []).length || (technologies || []).length) && !enableMinimized
     ),
     hasBetaContent:
@@ -435,7 +444,10 @@ export default {
         && platforms.length
         && platforms.some(platform => platform.beta),
     pageTitle: ({ title }) => title,
-    pageDescription: ({ abstract, extractFirstParagraphText }) => (
+    pageDescription: ({
+      abstract,
+      extractFirstParagraphText,
+    }) => (
       abstract ? extractFirstParagraphText(abstract) : null
     ),
     shouldShowLanguageSwitcher: ({
@@ -648,15 +660,16 @@ export default {
       && this.objcPath && this.$route.query.language !== Language.objectiveC.key.url) {
       const { query } = this.$route;
 
-      this.$nextTick().then(() => {
-        this.$router.replace({
-          path: normalizeRelativePath(this.objcPath),
-          query: {
-            ...query,
-            language: Language.objectiveC.key.url,
-          },
+      this.$nextTick()
+        .then(() => {
+          this.$router.replace({
+            path: normalizeRelativePath(this.objcPath),
+            query: {
+              ...query,
+              language: Language.objectiveC.key.url,
+            },
+          });
         });
-      });
     }
 
     AppStore.setAvailableLocales(this.availableLocales || []);
@@ -677,26 +690,25 @@ export default {
 
 <style scoped lang="scss">
 @import 'docc-render/styles/_core.scss';
+
 $space-size: 15px;
 
 .overload-menu {
-  background: white;
   position: relative;
-  margin-top: -15px !important;
-  margin-bottom: unset;
-  padding-left: 15px;
-  padding-right: 15px;
-  left: auto;
-  right: auto;
-  margin-left: auto;
-  margin-right: auto;
-  width: max-content;
-  cursor: pointer;
-  color: var(--colors-link, var(--color-tutorials-overview-link));
+  margin: 0 !important;
+  width: 100%;
 
-  .overload-menu-items {
+  .overload-menu-trigger {
     display: flex;
     flex-direction: row;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--color-fill);
+    padding: 5px 15px;
+    color: var(--colors-link, var(--color-tutorials-overview-link));
+    z-index: 1;
   }
 
   .overload-button {
@@ -780,7 +792,7 @@ $space-size: 15px;
 
     --spacing-stacked-margin-large: 0.667em;
     --spacing-stacked-margin-xlarge: 1em;
-    --declaration-code-listing-margin: 1em 0 0 0;
+    --declaration-code-listing-margin: 1em;
     --declaration-conditional-constraints-margin: 1em;
     --declaration-source-link-margin: 0.833em;
     --code-block-style-elements-padding: 7px 12px;

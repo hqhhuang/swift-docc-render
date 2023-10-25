@@ -22,19 +22,27 @@
       v-for="(declaration, i) in declarationTokens"
       :key="declaration.identifier"
     >
-      <component :is="getWrapperComponent(declaration)"
-        v-if="!hasOtherDeclarations || declaration.identifier === identifier || isVisible"
-        @click="handleSelectOverload(declaration.identifier)"
-        :class=" { 'declaration-overload': hasOtherDeclarations && isVisible }"
+      <div
+        v-if="!hasOtherDeclarations || declaration.identifier === selectedIdentifier || isExpanded"
+        :class="{
+            'declaration-overload': hasOtherDeclarations && isExpanded,
+            'current-overload': declaration.identifier === selectedIdentifier
+          }"
       >
-        <Source
-          :tokens="declaration.tokens"
-          :language="interfaceLanguage"
-          :class="{ 'selected-overload': isVisible
-            && declaration.identifier === identifier,
-            'first-overload': i === 0 }"
-        />
-      </component>
+        <component
+          :is="getWrapperComponent(declaration)"
+          @click="handleSelectOverload(declaration.identifier)"
+        >
+          <Source
+            :tokens="declaration.tokens"
+            :language="interfaceLanguage"
+            :class="{
+              'selected-overload': isSelectedOverload(declaration.identifier),
+              'first-overload': i === 0
+            }"
+          />
+        </component>
+      </div>
     </transition-expand>
   </div>
 </template>
@@ -44,6 +52,7 @@ import DeclarationSource from 'docc-render/components/DocumentationTopic/Primary
 import Language from 'docc-render/constants/Language';
 import TransitionExpand from 'docc-render/components/TransitionExpand.vue';
 import { APIChangesMultipleLines } from 'docc-render/mixins/apiChangesHelpers';
+import { waitFor } from '@/utils/loading';
 
 /**
  * Renders a code source with an optional caption.
@@ -53,6 +62,11 @@ export default {
   components: {
     Source: DeclarationSource,
     TransitionExpand,
+  },
+  data() {
+    return {
+      selectedIdentifier: this.identifier,
+    };
   },
   mixins: [APIChangesMultipleLines],
   inject: {
@@ -91,7 +105,7 @@ export default {
     },
     /**
      * The type of code change.
-     * @type {"added"|"deprecated"|"modified"}
+     * @type {'added'|'deprecated'|'modified'}
      */
     changeType: {
       type: String,
@@ -105,7 +119,10 @@ export default {
   },
   computed: {
     hasOtherDeclarations: ({ declaration }) => declaration.otherDeclarations || null,
-    declarationTokens: ({ declaration, hasOtherDeclarations }) => {
+    declarationTokens: ({
+      declaration,
+      hasOtherDeclarations,
+    }) => {
       if (!hasOtherDeclarations) return [declaration];
       const {
         otherDeclarations,
@@ -130,7 +147,7 @@ export default {
     },
     isSwift: ({ interfaceLanguage }) => interfaceLanguage === Language.swift.key.api,
     references: ({ store }) => store.state.references,
-    isVisible: {
+    isExpanded: {
       get: ({ expandDeclarationOverloads }) => expandDeclarationOverloads,
       set(value) {
         this.$emit('update:expandDeclarationOverloads', value);
@@ -139,15 +156,22 @@ export default {
   },
   methods: {
     async handleSelectOverload(identifier) {
-      this.isVisible = false; // collapse the overloads
+      this.selectedIdentifier = identifier;
+      // enough time to update the just selected item
+      await waitFor(100);
+      this.isExpanded = false; // collapse the overloads
+      if (identifier === this.identifier) return;
       // await animation finishes
       setTimeout(() => {
         this.$router.push(this.references[identifier].url);
       }, 500);
     },
     getWrapperComponent(decl) {
-      return (!this.isVisible || decl.identifier === this.identifier)
+      return (!this.isExpanded || decl.identifier === this.identifier)
         ? 'div' : 'button';
+    },
+    isSelectedOverload(identifier) {
+      return identifier === this.selectedIdentifier;
     },
   },
 };
@@ -171,10 +195,32 @@ export default {
   }
 }
 
+.current-overload {
+  position: relative;
+  z-index: 10;
+}
+
 .declaration-overload {
-  & > .selected-overload {
+  transition-timing-function: linear;
+
+  > button {
+    display: block;
+    width: 100%;
+  }
+
+  .selected-overload {
     border-color: var(--color-focus-border-color, var(--color-focus-border-color));
     background: var(--background, var(--color-code-background));
+  }
+
+  + .declaration-overload .source {
+    margin: var(--declaration-code-listing-margin);
+  }
+
+  &.expand-enter, &.expand-leave-to {
+    .source {
+      margin: 0;
+    }
   }
 
   // TODO: not needed in this implmentation
@@ -183,15 +229,8 @@ export default {
   // }
 }
 
-button {
-  width: 100%;
-}
-
 .source {
-  // needed when overloads are expanded, first item is a button
-  &:not(.first-overload) {
-    margin: var(--declaration-code-listing-margin);
-  }
+  transition: margin 0.3s linear;
 
   .platforms + & {
     margin: 0;
