@@ -202,6 +202,7 @@ export default {
 
 .declaration-overload {
   transition-timing-function: linear;
+  transition-property: opacity, height;
 
   > button {
     display: block;
@@ -218,6 +219,8 @@ export default {
   }
 
   &.expand-enter, &.expand-leave-to {
+    opacity: 0;
+
     .source {
       margin: 0;
     }
