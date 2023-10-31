@@ -122,13 +122,13 @@ export default {
     declarationTokens: ({
       declaration,
       hasOtherDeclarations,
+      identifier,
     }) => {
       if (!hasOtherDeclarations) return [declaration];
       const {
         otherDeclarations,
         indexInOtherDeclarations,
         tokens,
-        identifier,
       } = declaration;
 
       // insert declaration into the correct position if has overloaded symbols
