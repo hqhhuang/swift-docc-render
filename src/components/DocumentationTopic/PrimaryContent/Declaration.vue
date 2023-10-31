@@ -29,7 +29,7 @@
       />
     </template>
     <DeclarationSourceLink
-      v-if="source"
+      v-if="source && !isVisible"
       :url="source.url"
       :fileName="source.fileName"
     />

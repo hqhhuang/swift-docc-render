@@ -84,7 +84,11 @@
             v-if="hasPrimaryContent"
             :class="['container', { 'minimized-container': enableMinimized }]"
           >
-            <div class="description" :class="{ 'after-enhanced-hero': enhanceBackground }">
+            <div
+              class="description"
+              :class="{ 'after-enhanced-hero': enhanceBackground }"
+              v-if="!expandDeclarationOverloads"
+            >
               <RequirementMetadata
                 v-if="isRequirement"
                 :defaultImplementationsCount="defaultImplementationsCount"
