@@ -52,7 +52,7 @@ import DeclarationSource from 'docc-render/components/DocumentationTopic/Primary
 import Language from 'docc-render/constants/Language';
 import TransitionExpand from 'docc-render/components/TransitionExpand.vue';
 import { APIChangesMultipleLines } from 'docc-render/mixins/apiChangesHelpers';
-import { waitFor } from '@/utils/loading';
+import { waitFor } from 'docc-render/utils/loading';
 
 /**
  * Renders a code source with an optional caption.
