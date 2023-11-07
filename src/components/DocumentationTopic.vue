@@ -191,7 +191,7 @@ import CloseIcon from 'theme/components/Icons/CloseIcon.vue';
 import { SectionKind } from 'docc-render/constants/PrimaryContentSection';
 import Declaration from 'docc-render/components/DocumentationTopic/PrimaryContent/Declaration.vue';
 import { StandardColors } from 'docc-render/constants/StandardColors';
-import InlineChevronDownIcon from '@/components/Icons/InlineChevronDownIcon.vue';
+import InlineChevronDownIcon from 'docc-render/components/Icons/InlineChevronDownIcon.vue';
 import Abstract from './DocumentationTopic/Description/Abstract.vue';
 import ContentNode from './DocumentationTopic/ContentNode.vue';
 import CallToActionButton from './CallToActionButton.vue';
