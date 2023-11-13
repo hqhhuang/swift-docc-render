@@ -47,6 +47,7 @@ import NavigatorCard from 'theme/components/Navigator/NavigatorCard.vue';
 import LoadingNavigatorCard from 'theme/components/Navigator/LoadingNavigatorCard.vue';
 import { INDEX_ROOT_KEY } from 'docc-render/constants/sidebar';
 import { TopicTypes } from 'docc-render/constants/TopicTypes';
+import { last } from 'docc-render/utils/arrays';
 
 /**
  * @typedef NavigatorFlatItem
@@ -102,6 +103,9 @@ export default {
       type: Object,
       default: () => {},
     },
+    symbolKind: {
+      default: () => undefined,
+    },
     navigatorReferences: {
       type: Object,
       default: () => {},
@@ -139,7 +143,7 @@ export default {
         }, []);
     },
     // splits out the top-level technology crumb
-    activePath({ parentTopicReferences, $route: { path } }) {
+    activePath({ parentTopicReferences, $route: { path }, isSymbol }) {
       // Ensure the path does not have a trailing slash
       // eslint-disable-next-line no-param-reassign
       path = path.replace(/\/$/, '').toLowerCase();
@@ -150,8 +154,19 @@ export default {
       if (parentTopicReferences[0].kind === 'technologies') {
         itemsToSlice = 2;
       }
+
+      // Symbol pages can have a valid hash: less than 5 char, only lower case letter and number
+      const hash = isSymbol ? last(path.split('-')) : '';
+      if (hash.length <= 5 && /^[a-z0-9]*$/.test(hash)) {
+        // eslint-disable-next-line no-param-reassign
+        [path] = path.split('-');
+      }
       return parentTopicReferences.slice(itemsToSlice).map(r => r.url).concat(path);
     },
+    /**
+     * Symbol pages always have a symbolKind
+     */
+    isSymbol: ({ symbolKind }) => !!symbolKind,
     /**
      * The root item is always a module
      */
