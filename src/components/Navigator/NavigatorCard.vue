@@ -232,6 +232,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    hasValidHash: {
+      type: Boolean,
+      default: false,
+    },
   },
   mixins: [
     keyboardNavigation,
@@ -1014,36 +1018,64 @@ export default {
         if (lastActivePathItem === currentActiveItem.path) {
           return;
         }
-        // Get the surrounding items
-        const siblings = getSiblings(this.activeUID, this.childrenMap, this.children);
-        const children = getChildren(this.activeUID, this.childrenMap, this.children);
-        const parents = getParents(this.activeUID, this.childrenMap);
-        // try to match if any of the `siblings`,`children` or any of the `parents`,
-        // match the current open item
-        const matchingItem = [...children, ...siblings, ...parents]
-          .find(child => child.path === lastActivePathItem);
+        // try to match current open item in its surroundings, starting with active item
+        if (this.matchSurroundingItems(this.activeUID, lastActivePathItem)) return;
 
-        // set the match as an active item
-        if (matchingItem) {
-          this.setActiveUID(matchingItem.uid);
-          return;
+        if (this.hasValidHash) {
+          // if no match, try again to match with generic item
+          // Needed for continuing to highlight current generic page
+          // when selecting an overload from dropdown that's also specifically curated in elsewhere
+          const genericItem = lastActivePathItem.split('-')[0];
+          if (this.matchSurroundingItems(this.activeUID, genericItem)) return;
         }
       }
-      // There is no match to base upon, so we need to search
-      // across the activePath for the active item.
+      // There is no match to base upon, so we need to search the whole tree
+      // by matching each level of the hierachy in activePath
       const activePathChildren = this.pathsToFlatChildren(activePath);
-      // if there are items, set the new active UID
+      // if there are items, set new active UID
       if (activePathChildren.length) {
-        this.setActiveUID(activePathChildren[activePathChildren.length - 1].uid);
+        const lastChildrenUID = last(activePathChildren).uid;
+
+        if (last(activePathChildren).path !== lastActivePathItem && this.hasValidHash) {
+          // if item is not found in the tree and its a specific overloaded symbol page
+          // try to match with its generics page instead
+          const genericItem = lastActivePathItem.split('-')[0];
+          if (this.matchSurroundingItems(lastChildrenUID, genericItem)) return;
+        }
+
+        // Set new active UID to the last matched item
+        // Note: if a match is not found, last matched ancestor is highlighted
+        this.setActiveUID(lastChildrenUID);
         return;
       }
-      // if there is an activeUID, unset it, as we probably navigated back to the root
+      // if there is an activeUID, but still no match found in tree
+      // unset it, as we probably navigated back to the root
       if (this.activeUID) {
         this.setActiveUID(null);
         return;
       }
       // Just track the open nodes, as setting the activeUID as null wont do anything.
       this.trackOpenNodes(this.nodeChangeDeps);
+    },
+    /**
+     * try to match if any of the `siblings`,`children` or any of the `parents`
+     * of the UID match the item
+     */
+    matchSurroundingItems(UID, item) {
+      // Get the surrounding items
+      const siblings = getSiblings(UID, this.childrenMap, this.children);
+      const children = getChildren(UID, this.childrenMap, this.children);
+      const parents = getParents(UID, this.childrenMap);
+
+      const matchingItem = [...children, ...siblings, ...parents]
+        .find(child => child.path === item);
+
+      // set the match as an active item
+      if (matchingItem) {
+        this.setActiveUID(matchingItem.uid);
+        return true;
+      }
+      return false;
     },
     /**
      * Updates the current focusIndex, based on where the activeUID is.
