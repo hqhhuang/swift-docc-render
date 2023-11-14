@@ -232,6 +232,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    hasValidHash: {
+      type: Boolean,
+      default: false,
+    },
   },
   mixins: [
     keyboardNavigation,
@@ -984,6 +988,7 @@ export default {
       const { childrenMap } = this;
       // the items to loop over. First iteration is over all items
       let childrenStack = this.children;
+      let siblingStack = [];
       const result = [];
       // loop as long as there are items
       while (stack.length) {
@@ -991,10 +996,22 @@ export default {
         const currentPath = stack.pop();
         // find it by path (we dont have the UID yet)
         const currentNode = childrenStack.find(c => c.path === currentPath);
-        if (!currentNode) break;
+        if (!currentNode) {
+          // if last item has a valid hash
+          // this is likely a intentionally curated specific overload page
+          // Since we inserted an arbitrary generic page as its parent,
+          // search in the sibling instead of children
+          if (this.hasValidHash && !stack.length) {
+            const matchNode = siblingStack.find(c => c.path === currentPath);
+            if (matchNode) result.push(matchNode);
+            break;
+          }
+          break;
+        }
         // push the object to the results
         result.push(currentNode);
         if (stack.length) {
+          siblingStack = childrenStack;
           // get the children, so we search in those
           childrenStack = currentNode.childUIDs.map(c => childrenMap[c]);
         }
