@@ -25,11 +25,10 @@
         :declaration="declaration"
         :shouldCaption="hasPlatformVariants"
         :changeType="changeType"
-        :expandOverloads.sync="isExpanded"
       />
     </template>
     <DeclarationSourceLink
-      v-if="source && !isExpanded"
+      v-if="source"
       :url="source.url"
       :fileName="source.fileName"
     />
@@ -81,11 +80,6 @@ export default {
     declarations: {
       type: Array,
       required: true,
-    },
-    expandOverloads: {
-      type: Boolean,
-      required: false,
-      default: false,
     },
   },
   computed: {
@@ -139,12 +133,6 @@ export default {
     changeClasses: ({ changeType }) => ({
       [`changed changed-${changeType}`]: changeType,
     }),
-    isExpanded: {
-      get: ({ expandOverloads }) => expandOverloads,
-      set(value) {
-        this.$emit('update:expandOverloads', value);
-      },
-    },
   },
 };
 </script>

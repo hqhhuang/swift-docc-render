@@ -477,7 +477,6 @@ describe('DocumentationTopic', () => {
       conformance: propsData.conformance,
       declarations: declarationsSection.declarations,
       source: propsData.remoteSource,
-      expandOverloads: false,
     });
     // wrapper.setProps({ enableMinimized: true });
     // commented this out and moved it to the above `setProps` call because

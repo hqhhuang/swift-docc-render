@@ -42,10 +42,10 @@
         >
           <component :is="titleBreakComponent">{{ title }}</component>
           <template #after v-if="isSymbolDeprecated || isSymbolBeta">
-            <small
-              :class="tagName"
-              :data-tag-name="tagName"
-            />
+          <small
+          :class="tagName"
+          :data-tag-name="tagName"
+          />
           </template>
         </Title>
         <Abstract
@@ -71,7 +71,6 @@
             :conformance="conformance"
             :declarations="declaration.declarations"
             :source="remoteSource"
-            :expandOverloads.sync="expandOverloads"
           />
         </div>
       </DocumentationHero>
@@ -81,14 +80,10 @@
           :class="{ 'no-primary-content': !hasPrimaryContent && enhanceBackground }"
         >
           <div
-            v-if="hasPrimaryContent || hasDeclarationOverloads"
+            v-if="hasPrimaryContent"
             :class="['container', { 'minimized-container': enableMinimized }]"
           >
-            <div
-              class="description"
-              :class="{ 'after-enhanced-hero': enhanceBackground }"
-              v-if="!expandOverloads"
-            >
+            <div class="description" :class="{ 'after-enhanced-hero': enhanceBackground }">
               <RequirementMetadata
                 v-if="isRequirement"
                 :defaultImplementationsCount="defaultImplementationsCount"
@@ -102,20 +97,6 @@
               >
                 <ContentNode :content="downloadNotAvailableSummary" />
               </Aside>
-            </div>
-            <div v-if="hasDeclarationOverloads" class="overload-menu">
-              <button
-                class="overload-menu-trigger"
-                @click="toggleOverloads"
-              >
-                {{ overloadButtonText }}
-                <div
-                  class="overload-button"
-                  :class="{'expand': expandOverloads }"
-                >
-                  <InlinePlusCircleIcon />
-                </div>
-              </button>
             </div>
             <PrimaryContent
               v-if="primaryContentSectionsSanitized && primaryContentSectionsSanitized.length"
@@ -182,7 +163,6 @@ import OnThisPageNav from 'theme/components/OnThisPageNav.vue';
 import { SectionKind } from 'docc-render/constants/PrimaryContentSection';
 import Declaration from 'docc-render/components/DocumentationTopic/PrimaryContent/Declaration.vue';
 import { StandardColors } from 'docc-render/constants/StandardColors';
-import InlinePlusCircleIcon from 'docc-render/components/Icons/InlinePlusCircleIcon.vue';
 import Abstract from './DocumentationTopic/Description/Abstract.vue';
 import ContentNode from './DocumentationTopic/ContentNode.vue';
 import CallToActionButton from './CallToActionButton.vue';
@@ -239,7 +219,6 @@ export default {
     Topics,
     ViewMore,
     WordBreak,
-    InlinePlusCircleIcon,
   },
   props: {
     abstract: {
@@ -406,7 +385,6 @@ export default {
   data() {
     return {
       topicState: this.store.state,
-      expandOverloads: false, // Show all overloads by default
     };
   },
   computed: {
@@ -542,15 +520,6 @@ export default {
     declarations({ primaryContentSections = [] }) {
       return primaryContentSections.filter(({ kind }) => kind === SectionKind.declarations);
     },
-    // WHY didn't this work without checking for length:
-    // hasDeclarationOverloads({ declarations = [{ declarations: [{}] }] }) {
-    hasDeclarationOverloads({ declarations = [] }) {
-      // there's always only 1 `declaration` at this level
-      return declarations.length ? declarations[0].declarations.some(decl => Object.prototype.hasOwnProperty.call(decl, 'indexInOtherDeclarations')) : false;
-    },
-    overloadButtonText({ expandOverloads }) {
-      return expandOverloads ? 'Hide other declarations' : 'Show all declarations';
-    },
   },
   methods: {
     extractProps(json) {
@@ -638,9 +607,6 @@ export default {
         standardColorIdentifier,
       };
     },
-    toggleOverloads() {
-      this.expandOverloads = !this.expandOverloads;
-    },
   },
   created() {
     // Switch to the Objective-C variant of a page if the query parameter is not
@@ -680,46 +646,6 @@ export default {
 
 <style scoped lang="scss">
 @import 'docc-render/styles/_core.scss';
-
-$space-size: 15px;
-
-.overload-menu {
-  position: relative;
-  margin: 0 !important;
-  width: 100%;
-
-  .overload-menu-trigger {
-    display: flex;
-    flex-direction: row;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: var(--color-fill); // cover border line
-    padding: 5px 15px;
-    color: var(--colors-link, var(--color-tutorials-overview-link));
-    z-index: 1;
-  }
-
-  .overload-button {
-    margin-left: 5px;
-    margin-top: 2px !important;
-
-    svg {
-      transition-duration: 400ms;
-      transition-timing-function: linear;
-      transition-property: transform;
-
-      width: $space-size;
-      height: $space-size;
-      fill: var(--colors-link, var(--color-tutorials-overview-link));
-    }
-
-    &.expand > svg {
-      transform: rotate(45deg);
-    }
-  }
-}
 
 .doc-topic {
   display: flex;
@@ -903,17 +829,6 @@ $space-size: 15px;
   .doc-content {
     min-width: 0;
     width: 100%;
-
-    // only render border on overload menu when there's no content sections after overloads at all
-    .container:only-child {
-      .overload-menu:last-child::before {
-        border-top-color: var(--colors-grid, var(--color-grid));
-        border-top-style: solid;
-        border-top-width: var(--content-table-title-border-width, 1px);
-        content: '';
-        display: block;
-      }
-    }
 
     .with-on-this-page & {
       $large-max-width: map-deep-get($breakpoint-attributes, (default, large, content-width));
