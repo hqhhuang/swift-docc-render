@@ -25,6 +25,7 @@
       :api-changes="apiChanges"
       :allow-hiding="allowHiding"
       :navigator-references="navigatorReferences"
+      :hasValidHash="hasValidHash"
       @close="$emit('close')"
     >
       <template #filter><slot name="filter" /></template>
@@ -143,7 +144,7 @@ export default {
         }, []);
     },
     // splits out the top-level technology crumb
-    activePath({ parentTopicReferences, $route: { path }, isSymbol }) {
+    activePath({ parentTopicReferences, $route: { path }, hasValidHash }) {
       // Ensure the path does not have a trailing slash
       // eslint-disable-next-line no-param-reassign
       path = path.replace(/\/$/, '').toLowerCase();
@@ -155,9 +156,7 @@ export default {
         itemsToSlice = 2;
       }
 
-      // Symbol pages can have a valid hash: less than 5 char, only lower case letter and number
-      const hash = isSymbol ? last(path.split('-')) : '';
-      if (hash.length && hash.length <= 5 && /^[a-z0-9]*$/.test(hash)) {
+      if (hasValidHash) {
         const genericPath = [path.split('-')[0]];
         // eslint-disable-next-line no-param-reassign
         path = genericPath.concat(path);
@@ -168,6 +167,16 @@ export default {
      * Symbol pages always have a symbolKind
      */
     isSymbol: ({ symbolKind }) => !!symbolKind,
+    /**
+     * Only symbol pages can have a valid hash:
+     * less than 5 char, only lower case letter and number
+     */
+    hasValidHash({ $route: { path }, isSymbol }) {
+      // eslint-disable-next-line no-param-reassign
+      path = path.replace(/\/$/, '').toLowerCase();
+      const hash = isSymbol ? last(path.split('-')) : '';
+      return hash.length && hash.length <= 5 && /^[a-z0-9]*$/.test(hash);
+    },
     /**
      * The root item is always a module
      */
