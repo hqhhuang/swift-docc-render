@@ -164,7 +164,10 @@ export default {
       this.isExpanded = false; // collapse the list
       // await animation to finish
       await waitFor(500);
-      this.$router.push(this.references[identifier].url);
+      const newPath = this.references[identifier] ? this.references[identifier].url
+        : identifier.replace('doc://com.apple.SwiftUI/', '/').toLowerCase();
+      console.log(newPath);
+      this.$router.push(newPath);
     },
     getWrapperComponent(decl) {
       return (!this.isExpanded || decl.identifier === this.identifier)
