@@ -10,16 +10,16 @@
 
 <template>
   <Section class="availability" role="complementary" :aria-label="$t('sections.availability')">
-    <Badge
+    <div
       v-for="technology in technologies"
       class="technology"
       :key="technology"
     >
       <TechnologyIcon class="tech-icon" />
       {{ technology }}
-    </Badge>
+    </div>
 
-    <Badge
+    <div
       v-for="platform in platforms"
       class="platform"
       :class="changesClassesFor(platform.name)"
@@ -34,12 +34,11 @@
         {{ $t('aside-kind.deprecated') }}
       </span>
       <span v-else-if="platform.beta" class="beta">{{ $t('aside-kind.beta') }}</span>
-    </Badge>
+    </div>
   </Section>
 </template>
 
 <script>
-import Badge from 'docc-render/components/Badge.vue';
 import { ChangeTypes } from 'docc-render/constants/Changes';
 import { getAPIChanges } from 'docc-render/mixins/apiChangesHelpers';
 import TechnologyIcon from 'theme/components/Icons/TechnologyIcon.vue';
@@ -51,7 +50,6 @@ export default {
   mixins: [getAPIChanges],
   inject: ['identifier', 'store'],
   components: {
-    Badge,
     AvailabilityRange,
     Section,
     TechnologyIcon,
@@ -104,13 +102,16 @@ export default {
   display: flex;
   flex-flow: row wrap;
   gap: 10px;
-  margin-top: 25px;
+  margin-top: rem(15px);
+  @include font-styles(body-reduced);
+  font-weight: 500;
 }
 
-.badge {
-  margin: 0;
+.platform:not(:first-child):before {
+  content: " ";
+  border-left: 1px solid;
+  padding-right: 10px;
 }
-
 .technology {
   display: inline-flex;
   align-items: center;
