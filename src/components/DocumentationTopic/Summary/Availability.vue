@@ -16,7 +16,7 @@
       :key="technology"
     >
       <TechnologyIcon class="tech-icon" />
-      {{ technology }}
+      <span>{{ technology }}</span>
     </div>
 
     <div
@@ -104,13 +104,17 @@ export default {
   gap: 10px;
   margin-top: rem(15px);
   @include font-styles(body-reduced);
+
+  div:not(:last-child) {
+    // apply on the span of technology class to ensure same separator height
+    &.platform:after, &.technology > span:after {
+      content: " ";
+      border-right: 1px solid;
+      padding-left: 10px;
+    }
+  }
 }
 
-.platform:not(:first-child):before {
-  content: " ";
-  border-left: 1px solid;
-  padding-right: 10px;
-}
 .technology {
   display: inline-flex;
   align-items: center;
