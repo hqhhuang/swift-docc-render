@@ -104,7 +104,6 @@ export default {
   gap: 10px;
   margin-top: rem(15px);
   @include font-styles(body-reduced);
-  font-weight: 500;
 }
 
 .platform:not(:first-child):before {
@@ -127,19 +126,26 @@ export default {
   }
 }
 
+.beta, .deprecated {
+  border-radius: 3px;
+  padding: 2px 4px;
+  border: none;
+  color: var(--colors-button-text, var(--color-button-text));
+}
+
 .beta {
-  color: var(--color-badge-beta);
+  background-color: var(--color-badge-beta);
 
   @include prefers-dark {
-    color: var(--color-badge-dark-beta);
+    background-color: var(--color-badge-dark-beta);
   }
 }
 
 .deprecated {
-  color: var(--color-badge-deprecated);
+  background-color:var(--color-badge-deprecated);
 
   @include prefers-dark {
-    color: var(--color-badge-dark-deprecated);
+    background-color: var(--color-badge-dark-deprecated);
   }
 }
 
