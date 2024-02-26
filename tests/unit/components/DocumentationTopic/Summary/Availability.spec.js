@@ -1,7 +1,7 @@
 /**
  * This source file is part of the Swift.org open source project
  *
- * Copyright (c) 2021-2023 Apple Inc. and the Swift project authors
+ * Copyright (c) 2021-2024 Apple Inc. and the Swift project authors
  * Licensed under Apache License v2.0 with Runtime Library Exception
  *
  * See https://swift.org/LICENSE.txt for license information
@@ -14,7 +14,6 @@ import Availability from 'docc-render/components/DocumentationTopic/Summary/Avai
 const {
   AvailabilityRange,
   Section,
-  Badge,
 } = Availability.components;
 
 describe('Availability', () => {
@@ -74,18 +73,18 @@ describe('Availability', () => {
     expect(section.attributes('role')).toBe('complementary');
   });
 
-  it('renders a `Badge` for technologies, a `Badge` and `AvailabilityRange` for each platform', () => {
+  it('renders pills for technologies, a pill and `AvailabilityRange` for each platform', () => {
     const { platforms, technologies } = propsData;
-    const badges = wrapper.findAll(Badge);
-    expect(badges.length).toBe(technologies.length + platforms.length);
+    const pills = wrapper.findAll('.technology, .platform');
+    expect(pills.length).toBe(technologies.length + platforms.length);
 
     for (let i = 0; i < technologies.length; i += 1) {
-      const badge = badges.at(i);
+      const badge = pills.at(i);
       expect(badge.exists()).toBe(true);
     }
 
     for (let i = technologies.length; i < platforms.length; i += 1) {
-      const badge = badges.at(i);
+      const badge = pills.at(i);
       const range = badge.find(AvailabilityRange);
       expect(range.exists()).toBe(true);
       expect(range.props()).toEqual({
@@ -97,7 +96,7 @@ describe('Availability', () => {
   });
 
   it('renders deprecated text', () => {
-    const badges = wrapper.findAll(Badge);
+    const badges = wrapper.findAll('.technology, .platform');
     expect(badges.at(2).contains('.deprecated')).toBe(false);
     expect(badges.at(3).contains('.deprecated')).toBe(true);
     expect(badges.at(4).contains('.deprecated')).toBe(true);
@@ -181,12 +180,12 @@ describe('Availability', () => {
         },
       };
 
-      const badges = wrapper.findAll(Badge);
+      const pills = wrapper.findAll('.technology, .platform');
 
-      expect(badges.at(2).classes()).toEqual(['platform', 'changed', 'changed-deprecated']);
-      expect(badges.at(3).classes()).toEqual(['platform', 'changed', 'changed-added']);
-      expect(badges.at(4).classes()).toEqual(['platform', 'changed', 'changed-modified']);
-      expect(badges.at(5).classes()).toEqual(['platform']);
+      expect(pills.at(2).classes()).toEqual(['platform', 'changed', 'changed-deprecated']);
+      expect(pills.at(3).classes()).toEqual(['platform', 'changed', 'changed-added']);
+      expect(pills.at(4).classes()).toEqual(['platform', 'changed', 'changed-modified']);
+      expect(pills.at(5).classes()).toEqual(['platform']);
     });
   });
 });
