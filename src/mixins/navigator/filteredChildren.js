@@ -30,7 +30,7 @@ export default {
       const selectedTagSet = new Set(selectedTags);
       // find children that match current filters
       return children.filter(({
-        title, path, type, deprecated, deprecatedChildrenCount, childUIDs,
+        title, path, type, deprecated, deprecatedChildrenCount, childUIDs, tags = [],
       }) => {
         // check if `title` matches the pattern, if provided
         const titleMatch = filterPattern ? filterPattern.test(title) : true;
@@ -39,6 +39,14 @@ export default {
         let tagMatch = true;
         if (selectedTagSet.size) {
           tagMatch = selectedTagSet.has(TOPIC_TYPE_TO_TAG[type]);
+          if (!tagMatch) {
+            tags.forEach((tag) => {
+              const match = selectedTagSet.has(tag);
+              if (match) {
+                tagMatch = true;
+              }
+            });
+          }
           // if there are API changes and there is no tag match, try to match change types
           if (apiChanges && !tagMatch) {
             const change = apiChanges[path];

@@ -51,6 +51,7 @@ export default {
       const possibleTags = new Set(Object.values(TYPE_TAGS));
       // create categories to order the availableTags
       const availableTags = {
+        custom: [],
         type: [],
         changes: [],
         other: [],
@@ -74,11 +75,25 @@ export default {
           continue;
         }
         // if there are no more tags to iterate over, end early
-        if (!possibleTags.size) {
-          break;
-        }
+        // if (!possibleTags.size) {
+        //   break;
+        // }
         // extract props
-        const { type, path, deprecated } = nodes[childID];
+        const {
+          type,
+          path,
+          deprecated,
+          tags = [],
+        } = nodes[childID];
+
+        // add custom tags if not already added
+        if (tags?.length) {
+          tags.forEach((tag) => {
+            if (!availableTags.custom.includes(tag)) {
+              availableTags.custom.push(tag);
+            }
+          });
+        }
 
         // add type tag if not already added
         const tag = TOPIC_TYPE_TO_TAG[type];
