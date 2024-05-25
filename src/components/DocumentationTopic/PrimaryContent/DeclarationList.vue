@@ -161,8 +161,9 @@ export default {
       if (identifier === this.identifier) return;
       this.selectedIdentifier = identifier;
       await this.$nextTick(); // wait for identifier to update
+      window.scrollTo(0, 0);
       this.isExpanded = false; // collapse the list
-      await waitFor(500); // wait for animation to finish
+      await waitFor(300); // wait for animation to finish
       const url = buildUrl(this.references[identifier].url, this.$route.query);
       this.$router.push(url);
     },
