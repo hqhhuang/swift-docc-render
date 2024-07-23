@@ -11,6 +11,8 @@
 <template>
   <nav
     :aria-labelledby="INDEX_ROOT_KEY"
+          :id="scrollLockID"
+
     class="navigator"
   >
     <NavigatorCard

@@ -24,6 +24,7 @@ const isIosDevice = () => window.navigator
  * @param {TouchEvent} event
  */
 function preventDefault(event) {
+  console.log('prev default');
   // Do not prevent if the event has more than one touch
   // (usually meaning this is a multi touch gesture like pinch to zoom).
   if (event.touches.length > 1) return;
@@ -80,23 +81,37 @@ function advancedUnlock(targetElement) {
  * @return {boolean}
  */
 function handleScroll(event, targetElement) {
+  const eventTarget = event.target;
+  const scroller = document.getElementsByClassName('scroller')[0];
+  if(!scroller.contains(eventTarget)){
+    console.log('not in scroller');
+    preventDefault(event);
+  }
+
   const clientY = event.targetTouches[0].clientY - initialClientY;
   // check if any parent has a scroll-lock disable, if not use the targetElement
-  const target = event.target.closest(`[${SCROLL_LOCK_DISABLE_ATTR}]`) || targetElement;
+  // console.log(event.target);
+  const target = event.target.closest(`[${SCROLL_LOCK_DISABLE_ATTR}]`) || scroller;
+
   if (target.scrollTop === 0 && clientY > 0) {
+    // console.log("top");
     // element is at the top of its scroll.
     return preventDefault(event);
   }
 
   if (isTargetElementTotallyScrolled(target) && clientY < 0) {
     // element is at the bottom of its scroll.
+    // console.log("bottom");
     return preventDefault(event);
   }
 
   // prevent the scroll event from going up to the parent/window
   event.stopPropagation();
+  // console.log('prevet propagation');
   return true;
 }
+
+
 
 /**
  * Advanced scroll locking for iOS devices.
@@ -115,6 +130,7 @@ function advancedLock(targetElement) {
     }
   };
   targetElement.ontouchmove = (event) => {
+    console.log('move', targetElement);
     if (event.targetTouches.length === 1) {
       // detect single touch.
       handleScroll(event, targetElement);
@@ -132,6 +148,7 @@ export default {
    * @param {HTMLElement} targetElement
    */
   lockScroll(targetElement) {
+    console.log(targetElement);
     // skip lock if already locked
     if (isLocked) return;
     // iOS devices require a more advanced locking.
