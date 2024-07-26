@@ -46,6 +46,7 @@
         </Reference>
         <DynamicScroller
           v-show="hasNodes"
+          :id="scrollLockID"
           ref="scroller"
           class="scroller"
           :aria-label="$t('navigator.title')"

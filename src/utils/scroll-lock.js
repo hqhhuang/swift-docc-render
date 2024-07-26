@@ -24,7 +24,6 @@ const isIosDevice = () => window.navigator
  * @param {TouchEvent} event
  */
 function preventDefault(event) {
-  console.log('prev default');
   // Do not prevent if the event has more than one touch
   // (usually meaning this is a multi touch gesture like pinch to zoom).
   if (event.touches.length > 1) return;
@@ -80,60 +79,51 @@ function advancedUnlock(targetElement) {
  * @param {HTMLElement} targetElement
  * @return {boolean}
  */
-function handleScroll(event, targetElement) {
+function handleScroll(event, scrollerID) {
   const eventTarget = event.target;
-  const scroller = document.getElementsByClassName('scroller')[0];
-  if(!scroller.contains(eventTarget)){
-    console.log('not in scroller');
+  const scroller = document.getElementById(scrollerID);
+
+  if (!scroller.contains(eventTarget)) {
     preventDefault(event);
   }
 
   const clientY = event.targetTouches[0].clientY - initialClientY;
-  // check if any parent has a scroll-lock disable, if not use the targetElement
-  // console.log(event.target);
   const target = event.target.closest(`[${SCROLL_LOCK_DISABLE_ATTR}]`) || scroller;
 
   if (target.scrollTop === 0 && clientY > 0) {
-    // console.log("top");
     // element is at the top of its scroll.
     return preventDefault(event);
   }
 
   if (isTargetElementTotallyScrolled(target) && clientY < 0) {
     // element is at the bottom of its scroll.
-    // console.log("bottom");
     return preventDefault(event);
   }
 
   // prevent the scroll event from going up to the parent/window
   event.stopPropagation();
-  // console.log('prevet propagation');
   return true;
 }
-
-
 
 /**
  * Advanced scroll locking for iOS devices.
  * @param targetElement
  */
-function advancedLock(targetElement) {
+function advancedLock(scrollerID) {
+  if (!scrollerID) return;
+  const scroller = document.getElementById(scrollerID);
   // add a scroll listener to the body
-  document.addEventListener('touchmove', preventDefault, { passive: false });
-  if (!targetElement) return;
-  /* eslint-disable no-param-reassign */
-  // add inline listeners to the target, for easier removal later.
-  targetElement.ontouchstart = (event) => {
+  document.addEventListener('touchmove', (event) => {
+    if (event.targetTouches.length === 1) {
+      // detect single touch.
+      handleScroll(event, scrollerID);
+    }
+  }, { passive: false });
+
+  scroller.ontouchstart = (event) => {
     if (event.targetTouches.length === 1) {
       // detect single touch.
       initialClientY = event.targetTouches[0].clientY;
-    }
-  };
-  targetElement.ontouchmove = (event) => {
-    console.log('move', targetElement);
-    if (event.targetTouches.length === 1) {
-      // detect single touch.
-      handleScroll(event, targetElement);
     }
   };
 }
