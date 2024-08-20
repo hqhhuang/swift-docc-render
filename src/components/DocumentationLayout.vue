@@ -40,8 +40,14 @@
           <transition name="delay-hiding">
             <slot
               name="navigator"
-              :scrollLockID="scrollLockID"
-              :breakpoint="breakpoint"
+              v-bind="{
+                scrollLockID,
+                breakpoint,
+                sidenavVisibleOnMobile,
+                handleToggleSidenav,
+                enableQuickNavigation,
+                openQuickNavigationModal,
+              }"
             >
               <Navigator
                 v-show="sidenavVisibleOnMobile || breakpoint === BreakpointName.large"
