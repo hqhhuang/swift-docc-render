@@ -48,6 +48,13 @@ export default {
       ));
       return currentTechnology ?? currentLangTechnologies[0];
     },
+    technologyProps: ({ technologyWithChildren }) => (
+      !technologyWithChildren ? null : {
+        technology: technologyWithChildren.title,
+        technologyPath: technologyWithChildren.path || technologyWithChildren.url,
+        isTechnologyBeta: technologyWithChildren.beta,
+      }
+    ),
   },
   methods: {
     async fetchIndexData() {
@@ -56,7 +63,7 @@ export default {
         const {
           includedArchiveIdentifiers = [],
           interfaceLanguages,
-          references,
+          references = {},
         } = await fetchIndexPathsData(
           { slug: this.$route.params.locale || '' },
         );
@@ -64,6 +71,7 @@ export default {
         IndexStore.setReferences(references);
         IndexStore.setIncludedArchiveIdentifiers(includedArchiveIdentifiers);
         IndexStore.setFlatChildren(this.flatChildren);
+        IndexStore.setTechnologyProps(this.technologyProps);
       } catch (e) {
         IndexStore.setErrorFetching(true);
       }

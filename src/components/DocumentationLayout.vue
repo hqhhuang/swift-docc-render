@@ -30,46 +30,38 @@
     >
       <PortalTarget name="modal-destination" multiple />
       <template #aside="{ scrollLockID, breakpoint }">
-        <NavigatorDataProvider
-          :interface-language="interfaceLanguage"
-          :technologyUrl="technology ? technology.url : ''"
-          :api-changes-version="selectedAPIChangesVersion"
-          ref="NavigatorDataProvider"
-        >
-          <template #default="slotProps">
-            <div class="documentation-layout-aside">
-              <QuickNavigationModal
-                v-if="enableQuickNavigation"
-                :children="state.flatChildren"
-                :showQuickNavigationModal.sync="showQuickNavigationModal"
-                :technology="technology ? technology.title : ''"
-              />
-              <transition name="delay-hiding">
-                <Navigator
-                  v-show="sidenavVisibleOnMobile || breakpoint === BreakpointName.large"
-                  :flatChildren="slotProps.flatChildren"
-                  :parent-topic-identifiers="parentTopicIdentifiers"
-                  :technology="slotProps.technology || technology"
-                  :is-fetching="slotProps.isFetching"
-                  :error-fetching="slotProps.errorFetching"
-                  :api-changes="slotProps.apiChanges"
-                  :references="references"
-                  :navigator-references="slotProps.references"
-                  :scrollLockID="scrollLockID"
-                  :render-filter-on-top="breakpoint !== BreakpointName.large"
-                  @close="handleToggleSidenav(breakpoint)"
-                >
-                  <template v-if="enableQuickNavigation" #filter>
-                    <QuickNavigationButton @click.native="openQuickNavigationModal" />
-                  </template>
-                  <template #navigator-head="{ className }">
-                    <slot name="nav-title" :className="className" />
-                  </template>
-                </Navigator>
-              </transition>
-            </div>
-          </template>
-        </NavigatorDataProvider>
+        <div class="documentation-layout-aside">
+          <QuickNavigationModal
+            v-if="enableQuickNavigation"
+            :children="state.flatChildren"
+            :showQuickNavigationModal.sync="showQuickNavigationModal"
+            :technology="technology ? technology.title : ''"
+          />
+          <transition name="delay-hiding">
+            <slot name="navigator">
+              <Navigator
+                v-show="sidenavVisibleOnMobile || breakpoint === BreakpointName.large"
+                :flatChildren="state.flatChildren"
+                :parent-topic-identifiers="parentTopicIdentifiers"
+                :technology-props="state.technologyProps || technology"
+                :error-fetching="state.errorFetching"
+                :api-changes="state.apiChanges"
+                :references="references"
+                :navigator-references="state.references"
+                :scrollLockID="scrollLockID"
+                :render-filter-on-top="breakpoint !== BreakpointName.large"
+                @close="handleToggleSidenav(breakpoint)"
+              >
+                <template v-if="enableQuickNavigation" #filter>
+                  <QuickNavigationButton @click.native="openQuickNavigationModal" />
+                </template>
+                <template #navigator-head="{ className }">
+                  <slot name="nav-title" :className="className" />
+                </template>
+              </Navigator>
+            </slot>
+          </transition>
+        </div>
       </template>
       <slot name="content" />
     </AdjustableSidebarWidth>
@@ -88,7 +80,6 @@ import { storage } from 'docc-render/utils/storage';
 import { getSetting } from 'docc-render/utils/theme-settings';
 
 import IndexStore from 'docc-render/stores/IndexStore';
-import NavigatorDataProvider from 'theme/components/Navigator/NavigatorDataProvider.vue';
 import DocumentationNav from 'theme/components/DocumentationTopic/DocumentationNav.vue';
 
 const NAVIGATOR_HIDDEN_ON_LARGE_KEY = 'navigator-hidden-large';
@@ -99,7 +90,6 @@ export default {
   components: {
     Navigator,
     AdjustableSidebarWidth,
-    NavigatorDataProvider,
     Nav: DocumentationNav,
     QuickNavigationButton,
     QuickNavigationModal,
