@@ -38,7 +38,11 @@
             :technology="technology ? technology.title : ''"
           />
           <transition name="delay-hiding">
-            <slot name="navigator">
+            <slot
+              name="navigator"
+              :scrollLockID="scrollLockID"
+              :breakpoint="breakpoint"
+            >
               <Navigator
                 v-show="sidenavVisibleOnMobile || breakpoint === BreakpointName.large"
                 :flatChildren="state.flatChildren"
