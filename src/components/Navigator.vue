@@ -14,7 +14,7 @@
     class="navigator"
   >
     <NavigatorCard
-      v-if="!isFetching"
+      v-show="!isFetching"
       v-bind="technologyProps"
       :type="type"
       :children="flatChildren"
@@ -36,7 +36,7 @@
     </NavigatorCard>
     <LoadingNavigatorCard
       @close="$emit('close')"
-      v-else
+      v-if="isFetching"
     />
     <div aria-live="polite" class="visuallyhidden">
       {{ $t('navigator.navigator-is', {
